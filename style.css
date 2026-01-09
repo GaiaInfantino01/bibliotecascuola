@@ -9,19 +9,18 @@ body {
   margin: 0;
 }
 
-/* HEADER / BANNER */
+/* HEADER */
 .site-header {
   width: 100%;
   background: #000;
 }
-
 .site-header img {
   width: 100%;
   height: auto;
   display: block;
 }
 
-/* CONTENITORE CENTRALE */
+/* CONTENITORE */
 .container {
   max-width: 900px;
   margin: 30px auto;
@@ -37,18 +36,18 @@ body {
   border-radius: 8px;
   margin-bottom: 8px;
 }
-
 #search:focus {
   outline: none;
   border-color: #2a5db0;
   box-shadow: 0 0 0 2px rgba(42, 93, 176, 0.15);
 }
 
-/* HINT */
-.hint { font-size: 0.85em; color: #666; margin-bottom: 20px; }
-
-/* LISTA */
-#results { list-style: none; padding: 0; margin: 0; }
+/* LISTA LIBRI */
+#results, #favorites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
 
 /* CARD LIBRO */
 .book-item {
@@ -60,27 +59,16 @@ body {
   cursor: pointer;
   transition: box-shadow 0.2s ease, background 0.2s ease;
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  position: relative;
 }
+.book-item:hover { background: #f5f7fa; box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
 
-.book-item:hover {
-  background: #f5f7fa;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-}
-
-/* BORDO DISPONIBILITÀ */
 .disponibile-border { border-left-color: #2e7d32; }
 .non-disponibile-border { border-left-color: #c62828; }
 
-/* CONTENUTO */
 .book-main { line-height: 1.5; font-size: 0.97em; }
-.book-main strong {
-  display: block;
-  font-size: 1.15em;
-  margin-bottom: 4px;
-  color: #2a5db0;
-}
+.book-main strong { display: block; font-size: 1.15em; margin-bottom: 4px; color: #2a5db0; }
 
-/* BADGE DISPONIBILITÀ */
 .disponibilita {
   display: inline-block;
   padding: 2px 8px;
@@ -89,15 +77,16 @@ body {
   margin-left: 6px;
   font-weight: 600;
 }
+.disponibile { background: rgba(46,125,50,0.12); color: #2e7d32; }
+.non-disponibile { background: rgba(198,40,40,0.12); color: #c62828; }
 
-.disponibile {
-  background: rgba(46,125,50,0.12);
-  color: #2e7d32;
-}
-
-.non-disponibile {
-  background: rgba(198,40,40,0.12);
-  color: #c62828;
+/* CUORE PREFERITI */
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2em;
+  margin-left: 10px;
 }
 
 /* ABSTRACT */
@@ -112,18 +101,7 @@ body {
   color: #444;
   transition: max-height 0.35s ease, opacity 0.25s ease;
 }
+.book-item.open .book-abstract { max-height: 400px; opacity: 1; }
 
-.book-item.open .book-abstract {
-  max-height: 400px;
-  opacity: 1;
-}
-
-/* NESSUN RISULTATO */
-#results li:only-child {
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 10px;
-  color: #666;
-  font-style: italic;
-}
+/* HINT */
+.hint { font-size: 0.85em; color: #666; margin-bottom: 20px; }
