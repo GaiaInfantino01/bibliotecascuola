@@ -21,43 +21,15 @@
   <!-- RICERCA -->
   <input type="text" id="search" placeholder="Cerca per titolo, autore, genere, ISBN...">
 
-  <!-- FILTRI -->
-  <div class="filters">
-    <select id="filter-author">
-      <option value="">Tutti gli autori</option>
-    </select>
-
-    <select id="filter-genre">
-      <option value="">Tutti i generi</option>
-    </select>
-
-    <select id="sort">
-      <option value="title">Ordina per titolo (A–Z)</option>
-      <option value="author">Ordina per autore (A–Z)</option>
-      <option value="year-asc">Anno (crescente)</option>
-      <option value="year-desc">Anno (decrescente)</option>
-    </select>
-
-    <label class="filter-checkbox">
-      <input type="checkbox" id="only-available">
-      Solo disponibili
-    </label>
-  </div>
-
   <p class="hint">Clicca su un libro per aprire la scheda completa</p>
-  <p id="loading">📚 Caricamento catalogo…</p>
-  <p id="count"></p>
+
   <ul id="results"></ul>
 
-</main>
+  <!-- LISTA PREFERITI -->
+  <h3>📌 Libri preferiti</h3>
+  <ul id="favorites-list"></ul>
 
-<!-- MODAL SCHEDA LIBRO -->
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
-    <button id="close-modal">×</button>
-    <div id="modal-body"></div>
-  </div>
-</div>
+</main>
 
 <script src="script.js"></script>
 </body>
