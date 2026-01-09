@@ -6,12 +6,10 @@ Papa.parse(sheetURL, {
   skipEmptyLines: true,
   complete: function (results) {
     const books = results.data;
-
     const input = document.getElementById("search");
     const resultsList = document.getElementById("results");
     const favList = document.getElementById("favorites-list");
 
-    // Funzione per renderizzare i preferiti
     function renderFavorites() {
       favList.innerHTML = "";
       const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
@@ -24,9 +22,6 @@ Papa.parse(sheetURL, {
       });
     }
 
-    renderFavorites(); // inizializza lista preferiti
-
-    // Funzione per creare le card dei libri
     function createBookCard(book) {
       const li = document.createElement("li");
       li.classList.add("book-item");
@@ -55,7 +50,6 @@ Papa.parse(sheetURL, {
         </div>
       `;
 
-      // Click per aprire abstract, ma esclude il cuore
       li.addEventListener("click", (e) => {
         if (e.target.classList.contains("fav-btn")) return;
         const isOpen = li.classList.contains("open");
@@ -63,20 +57,17 @@ Papa.parse(sheetURL, {
         if (!isOpen) li.classList.add("open");
       });
 
-      // Click cuore
-      const favButton = li.querySelector(".fav-btn");
-      favButton.addEventListener("click", () => {
+      li.querySelector(".fav-btn").addEventListener("click", (e) => {
+        e.stopPropagation(); // evita toggle abstract
         let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-        const bookId = favButton.dataset.id;
-
+        const bookId = e.target.dataset.id;
         if (favorites.includes(bookId)) {
           favorites = favorites.filter(id => id !== bookId);
-          favButton.textContent = "❤️";
+          e.target.textContent = "❤️";
         } else {
           favorites.push(bookId);
-          favButton.textContent = "💖";
+          e.target.textContent = "💖";
         }
-
         localStorage.setItem("favorites", JSON.stringify(favorites));
         renderFavorites();
       });
@@ -84,12 +75,18 @@ Papa.parse(sheetURL, {
       return li;
     }
 
-    // Event listener ricerca
+    // Renderizza tutti i libri all’avvio
+    function renderBooks(list) {
+      resultsList.innerHTML = "";
+      list.forEach(book => resultsList.appendChild(createBookCard(book)));
+    }
+
+    renderBooks(books); // iniziale
+    renderFavorites(); // iniziale
+
+    // Ricerca live
     input.addEventListener("input", () => {
       const query = input.value.toLowerCase().trim();
-      resultsList.innerHTML = "";
-      if (query === "") return;
-
       const filtered = books.filter(book =>
         (book.TITOLO || "").toLowerCase().includes(query) ||
         (book.AUTORE || "").toLowerCase().includes(query) ||
@@ -97,13 +94,7 @@ Papa.parse(sheetURL, {
         (book.EDITORE || "").toLowerCase().includes(query) ||
         (book.ISBN || "").toLowerCase().includes(query)
       );
-
-      if (filtered.length === 0) {
-        resultsList.innerHTML = "<li>Nessun risultato</li>";
-        return;
-      }
-
-      filtered.forEach(book => resultsList.appendChild(createBookCard(book)));
+      renderBooks(filtered);
     });
   },
 
