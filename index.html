@@ -19,11 +19,32 @@
 <main class="container">
 
   <!-- RICERCA -->
-  <input type="text" id="search" placeholder="Cerca per titolo, autore, genere, ISBN...">
+ <input type="text" id="search" placeholder="Cerca per titolo, autore, genere, ISBN...">
 
-  <p class="hint">Clicca su un libro per aprire la scheda completa</p>
+<div class="filters">
+  <select id="genre-filter">
+    <option value="">Tutti i generi</option>
+  </select>
 
-  <ul id="results"></ul>
+  <select id="availability-filter">
+    <option value="">Tutti</option>
+    <option value="disponibile">Disponibili</option>
+    <option value="non disponibile">Non disponibili</option>
+  </select>
+
+  <select id="sort-filter">
+    <option value="">Ordine originale</option>
+    <option value="titolo">Titolo A-Z</option>
+    <option value="autore">Autore A-Z</option>
+    <option value="anno">Anno</option>
+  </select>
+</div>
+
+<p id="counter" class="counter"></p>
+
+<p class="hint">Clicca su un libro per aprire la scheda completa</p>
+
+<ul id="results"></ul>
 
   <!-- LISTA PREFERITI -->
   <h3>📌 Libri preferiti</h3>
