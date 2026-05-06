@@ -3,45 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catalogo libri – BiblioLeo</title>
+  <title>BiblioLeo - Catalogo online</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header class="site-header">
-    <h1>BiblioLeo</h1>
-    <p>Catalogo online della biblioteca scolastica</p>
+  <header class="hero">
+    <div class="hero-content">
+      <div class="logo-badge">📚</div>
+      <h1>BiblioLeo</h1>
+      <p>Il catalogo digitale della biblioteca scolastica</p>
+    </div>
   </header>
 
   <main class="container">
-    <input id="search" type="text" placeholder="Cerca per titolo, autore, genere, ISBN..." />
 
-    <div class="filters">
-      <select id="genre-filter">
-        <option value="">Tutti i generi</option>
-      </select>
+    <section class="search-panel">
+      <h2>Cerca un libro</h2>
 
-      <select id="availability-filter">
-        <option value="">Tutti</option>
-        <option value="disponibile">Disponibili</option>
-        <option value="non disponibile">Non disponibili</option>
-      </select>
+      <input id="search" type="text" placeholder="Cerca per titolo, autore, genere, ISBN..." />
 
-      <select id="sort-filter">
-        <option value="">Ordine originale</option>
-        <option value="titolo">Titolo A-Z</option>
-        <option value="autore">Autore A-Z</option>
-        <option value="anno">Anno crescente</option>
-      </select>
-    </div>
+      <div class="filters">
+        <select id="genre-filter">
+          <option value="">Tutti i generi</option>
+        </select>
 
-    <p id="counter" class="counter"></p>
-    <p class="hint">Clicca su un libro per aprire la scheda completa.</p>
+        <select id="availability-filter">
+          <option value="">Tutti</option>
+          <option value="disponibile">Disponibili</option>
+          <option value="non disponibile">Non disponibili</option>
+        </select>
 
-    <ul id="results"></ul>
+        <select id="sort-filter">
+          <option value="">Ordine originale</option>
+          <option value="titolo">Titolo A-Z</option>
+          <option value="autore">Autore A-Z</option>
+          <option value="anno">Anno crescente</option>
+        </select>
+      </div>
 
-    <h2>Libri preferiti</h2>
-    <ul id="favorites-list"></ul>
+      <p id="counter" class="counter"></p>
+    </section>
+
+    <section class="catalog-section">
+      <div class="section-title">
+        <h2>Catalogo libri</h2>
+        <p>Clicca su una scheda per vedere i dettagli.</p>
+      </div>
+
+      <ul id="results"></ul>
+    </section>
+
+    <section class="favorites-section">
+      <h2>❤️ Libri preferiti</h2>
+      <ul id="favorites-list"></ul>
+    </section>
+
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
