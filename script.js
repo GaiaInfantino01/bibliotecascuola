@@ -20,7 +20,7 @@ function normalize(value) {
 }
 
 function getBookId(book) {
-  return clean(book.ISBN, "") || clean(book.TITOLO, "") + "-" + clean(book.AUTORE, "");
+  return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
 }
 
 function getFavorites() {
@@ -39,39 +39,32 @@ function isBookAvailable(book) {
   const disponibilita = normalize(book.DISPONIBILITA);
   const quantita = Number(book.QUANTITA || 0);
 
-  return disponibilita.includes("disponibile") && !disponibilita.includes("non") || quantita > 0;
+  if (disponibilita.includes("non")) return false;
+  if (disponibilita.includes("disponibile")) return true;
+  if (quantita > 0) return true;
+
+  return false;
 }
 
 function createBookCard(book) {
   const li = document.createElement("li");
-  li.className = "book-item";
 
   const available = isBookAvailable(book);
-  li.classList.add(available ? "disponibile-border" : "non-disponibile-border");
-
   const bookId = getBookId(book);
   const favorites = getFavorites();
   const isFav = favorites.includes(bookId);
 
+  li.className = `book-item ${available ? "disponibile-border" : "non-disponibile-border"}`;
+
   li.innerHTML = `
-    <button class="fav-btn" data-id="${bookId}" title="Aggiungi ai preferiti">
-      ${isFav ? "❤️" : "🤍"}
-    </button>
+    <button class="fav-btn" type="button">${isFav ? "❤️" : "🤍"}</button>
 
     <div class="book-title">${clean(book.TITOLO, "Titolo mancante")}</div>
 
-    <p class="book-meta">
-      <strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}
-    </p>
-
-    <p class="book-meta">
-      <strong>Editore:</strong> ${clean(book.EDITORE)} 
-      — <strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}
-    </p>
-
-    <p class="book-meta">
-      <strong>Genere:</strong> ${clean(book.GENERE)}
-    </p>
+    <p class="book-meta"><strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}</p>
+    <p class="book-meta"><strong>Editore:</strong> ${clean(book.EDITORE)}</p>
+    <p class="book-meta"><strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}</p>
+    <p class="book-meta"><strong>Genere:</strong> ${clean(book.GENERE)}</p>
 
     <p class="book-meta">
       <span class="badge ${available ? "disponibile" : "non-disponibile"}">
@@ -80,7 +73,7 @@ function createBookCard(book) {
     </p>
 
     <div class="book-details">
-      <p><strong>ISBN:</strong> ${clean(book.ISBN, "Non disponibile")}</p>
+      <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
       <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
       <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
       <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
@@ -95,21 +88,22 @@ function createBookCard(book) {
 
   li.addEventListener("click", function (event) {
     if (event.target.classList.contains("fav-btn")) return;
-
     li.classList.toggle("open");
   });
 
-  li.querySelector(".fav-btn").addEventListener("click", function (event) {
+  const favButton = li.querySelector(".fav-btn");
+
+  favButton.addEventListener("click", function (event) {
     event.stopPropagation();
 
     let favorites = getFavorites();
 
     if (favorites.includes(bookId)) {
       favorites = favorites.filter(id => id !== bookId);
-      event.target.textContent = "🤍";
+      favButton.textContent = "🤍";
     } else {
       favorites.push(bookId);
-      event.target.textContent = "❤️";
+      favButton.textContent = "❤️";
     }
 
     saveFavorites(favorites);
@@ -139,7 +133,7 @@ function populateGenres() {
   const genres = [...new Set(
     books
       .map(book => clean(book.GENERE, ""))
-      .filter(Boolean)
+      .filter(genre => genre !== "")
   )].sort();
 
   genres.forEach(genre => {
@@ -158,15 +152,14 @@ function applyFilters() {
 
   let filtered = books.filter(book => {
     const searchableText = Object.values(book).join(" ").toLowerCase();
+    const available = isBookAvailable(book);
 
     const matchesSearch = searchableText.includes(query);
     const matchesGenre = selectedGenre === "" || clean(book.GENERE, "") === selectedGenre;
-
-    const available = isBookAvailable(book);
     const matchesAvailability =
       selectedAvailability === "" ||
-      selectedAvailability === "disponibile" && available ||
-      selectedAvailability === "non disponibile" && !available;
+      (selectedAvailability === "disponibile" && available) ||
+      (selectedAvailability === "non disponibile" && !available);
 
     return matchesSearch && matchesGenre && matchesAvailability;
   });
@@ -215,6 +208,7 @@ function loadBooks() {
     download: true,
     header: true,
     skipEmptyLines: true,
+
     complete: function (results) {
       books = results.data.filter(book => clean(book.TITOLO, "") !== "");
 
@@ -227,6 +221,7 @@ function loadBooks() {
       availabilityFilter.addEventListener("change", applyFilters);
       sortFilter.addEventListener("change", applyFilters);
     },
+
     error: function (error) {
       console.error("Errore nel caricamento del CSV:", error);
       resultsList.innerHTML = `<li class="error-message">Errore nel caricamento del catalogo.</li>`;
