@@ -10,17 +10,25 @@ const counter = document.getElementById("counter");
 
 let books = [];
 
-function normalize(value) {
-  return (value || "").toString().trim().toLowerCase();
+function clean(value, fallback = "Non indicato") {
+  const text = value ? String(value).trim() : "";
+  return text || fallback;
 }
 
-function clean(value, fallback = "Non indicato") {
-  const text = (value || "").toString().trim();
-  return text === "" ? fallback : text;
+function normalize(value) {
+  return clean(value, "").toLowerCase();
+}
+
+function getBookId(book) {
+  return clean(book.ISBN, "") || clean(book.TITOLO, "") + "-" + clean(book.AUTORE, "");
 }
 
 function getFavorites() {
-  return JSON.parse(localStorage.getItem("favorites")) || [];
+  try {
+    return JSON.parse(localStorage.getItem("favorites")) || [];
+  } catch {
+    return [];
+  }
 }
 
 function saveFavorites(favorites) {
@@ -31,118 +39,77 @@ function isBookAvailable(book) {
   const disponibilita = normalize(book.DISPONIBILITA);
   const quantita = Number(book.QUANTITA || 0);
 
-  return disponibilita === "disponibile" || quantita > 0;
-}
-
-function renderFavorites() {
-  favList.innerHTML = "";
-
-  const favorites = getFavorites();
-  const favoriteBooks = books.filter(book => favorites.includes(clean(book.ISBN, "")));
-
-  if (favoriteBooks.length === 0) {
-    const li = document.createElement("li");
-    li.textContent = "Nessun libro preferito.";
-    favList.appendChild(li);
-    return;
-  }
-
-  favoriteBooks.forEach(book => {
-    const li = document.createElement("li");
-    li.textContent = `${clean(book.TITOLO, "Titolo mancante")} – ${clean(book.AUTORE, "Autore mancante")}`;
-    favList.appendChild(li);
-  });
+  return disponibilita.includes("disponibile") && !disponibilita.includes("non") || quantita > 0;
 }
 
 function createBookCard(book) {
   const li = document.createElement("li");
-  li.classList.add("book-item");
+  li.className = "book-item";
 
   const available = isBookAvailable(book);
-
   li.classList.add(available ? "disponibile-border" : "non-disponibile-border");
 
-  const disponibilitaClass = available ? "disponibile" : "non-disponibile";
-  const disponibilitaText = available ? "Disponibile" : "Non disponibile";
-
-  const isbn = clean(book.ISBN, "");
+  const bookId = getBookId(book);
   const favorites = getFavorites();
-  const isFav = favorites.includes(isbn);
-  const favHeart = isFav ? "💖" : "❤️";
+  const isFav = favorites.includes(bookId);
 
   li.innerHTML = `
-    <div class="book-main">
-      <strong>${clean(book.TITOLO, "Titolo mancante")}</strong>
+    <button class="fav-btn" data-id="${bookId}" title="Aggiungi ai preferiti">
+      ${isFav ? "❤️" : "🤍"}
+    </button>
 
-      ${clean(book.AUTORE, "Autore mancante")} – 
-      ${clean(book.EDITORE, "Editore non indicato")}, 
-      ${clean(book.LUOGO, "Luogo non indicato")} 
-      (${clean(book.ANNO, "s.d.")})<br>
+    <div class="book-title">${clean(book.TITOLO, "Titolo mancante")}</div>
 
-      <em>${clean(book.GENERE, "Genere non indicato")}</em> |
-      ISBN: ${clean(book.ISBN, "ISBN non disponibile")}<br>
+    <p class="book-meta">
+      <strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}
+    </p>
 
-      Collocazione: <strong>${clean(book.COLLOCAZIONE, "Non indicata")}</strong><br>
+    <p class="book-meta">
+      <strong>Editore:</strong> ${clean(book.EDITORE)} 
+      — <strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}
+    </p>
 
-      Disponibilità:
-      <span class="disponibilita ${disponibilitaClass}">${disponibilitaText}</span>
+    <p class="book-meta">
+      <strong>Genere:</strong> ${clean(book.GENERE)}
+    </p>
 
-      <button class="fav-btn" data-id="${isbn}" title="Aggiungi ai preferiti">${favHeart}</button>
-    </div>
+    <p class="book-meta">
+      <span class="badge ${available ? "disponibile" : "non-disponibile"}">
+        ${available ? "Disponibile" : "Non disponibile"}
+      </span>
+    </p>
 
     <div class="book-details">
-      <div class="detail-grid">
-        <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
-        <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
-        <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
-        <p><strong>Quantità:</strong> ${clean(book.QUANTITA)}</p>
-        <p><strong>Prestito:</strong> ${clean(book.PRESTITO)}</p>
-        <p><strong>Volume:</strong> ${clean(book.VOLUME)}</p>
-        <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
-        <p><strong>Disponibilità originale:</strong> ${clean(book.DISPONIBILITA)}</p>
-      </div>
-
-      <div class="abstract">
-        <strong>Abstract:</strong>
-        <p>${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
-      </div>
+      <p><strong>ISBN:</strong> ${clean(book.ISBN, "Non disponibile")}</p>
+      <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
+      <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
+      <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
+      <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
+      <p><strong>Quantità:</strong> ${clean(book.QUANTITA)}</p>
+      <p><strong>Prestito:</strong> ${clean(book.PRESTITO)}</p>
+      <p><strong>Volume:</strong> ${clean(book.VOLUME)}</p>
+      <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
+      <p><strong>Abstract:</strong> ${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
     </div>
   `;
 
-  li.addEventListener("click", function(e) {
-    if (e.target.classList.contains("fav-btn")) return;
+  li.addEventListener("click", function (event) {
+    if (event.target.classList.contains("fav-btn")) return;
 
-    const isOpen = li.classList.contains("open");
-
-    document.querySelectorAll(".book-item.open").forEach(item => {
-      item.classList.remove("open");
-    });
-
-    if (!isOpen) {
-      li.classList.add("open");
-    }
+    li.classList.toggle("open");
   });
 
-  const favButton = li.querySelector(".fav-btn");
-
-  favButton.addEventListener("click", function(e) {
-    e.stopPropagation();
-
-    const bookId = e.target.dataset.id;
-
-    if (!bookId) {
-      alert("Questo libro non ha un ISBN, quindi non può essere salvato nei preferiti.");
-      return;
-    }
+  li.querySelector(".fav-btn").addEventListener("click", function (event) {
+    event.stopPropagation();
 
     let favorites = getFavorites();
 
     if (favorites.includes(bookId)) {
       favorites = favorites.filter(id => id !== bookId);
-      e.target.textContent = "❤️";
+      event.target.textContent = "🤍";
     } else {
       favorites.push(bookId);
-      e.target.textContent = "💖";
+      event.target.textContent = "❤️";
     }
 
     saveFavorites(favorites);
@@ -154,14 +121,10 @@ function createBookCard(book) {
 
 function renderBooks(list) {
   resultsList.innerHTML = "";
-
   counter.textContent = `${list.length} libro/i trovato/i`;
 
   if (list.length === 0) {
-    const li = document.createElement("li");
-    li.classList.add("book-item");
-    li.textContent = "Nessun libro trovato.";
-    resultsList.appendChild(li);
+    resultsList.innerHTML = `<li class="empty-message">Nessun libro trovato.</li>`;
     return;
   }
 
@@ -171,10 +134,12 @@ function renderBooks(list) {
 }
 
 function populateGenres() {
+  genreFilter.innerHTML = `<option value="">Tutti i generi</option>`;
+
   const genres = [...new Set(
     books
       .map(book => clean(book.GENERE, ""))
-      .filter(genre => genre !== "")
+      .filter(Boolean)
   )].sort();
 
   genres.forEach(genre => {
@@ -192,33 +157,16 @@ function applyFilters() {
   const selectedSort = sortFilter.value;
 
   let filtered = books.filter(book => {
-    const matchesSearch =
-      normalize(book.TITOLO).includes(query) ||
-      normalize(book.AUTORE).includes(query) ||
-      normalize(book.EDITORE).includes(query) ||
-      normalize(book.ANNO).includes(query) ||
-      normalize(book.LUOGO).includes(query) ||
-      normalize(book.EDIZIONE).includes(query) ||
-      normalize(book.GENERE).includes(query) ||
-      normalize(book.ABSTRACT).includes(query) ||
-      normalize(book.PAGINE).includes(query) ||
-      normalize(book.LINGUA).includes(query) ||
-      normalize(book.ISBN).includes(query) ||
-      normalize(book.QUANTITA).includes(query) ||
-      normalize(book.PRESTITO).includes(query) ||
-      normalize(book.DISPONIBILITA).includes(query) ||
-      normalize(book.VOLUME).includes(query) ||
-      normalize(book.COLLOCAZIONE).includes(query);
+    const searchableText = Object.values(book).join(" ").toLowerCase();
 
-    const matchesGenre =
-      selectedGenre === "" || book.GENERE === selectedGenre;
+    const matchesSearch = searchableText.includes(query);
+    const matchesGenre = selectedGenre === "" || clean(book.GENERE, "") === selectedGenre;
 
     const available = isBookAvailable(book);
-
     const matchesAvailability =
       selectedAvailability === "" ||
-      (selectedAvailability === "disponibile" && available) ||
-      (selectedAvailability === "non disponibile" && !available);
+      selectedAvailability === "disponibile" && available ||
+      selectedAvailability === "non disponibile" && !available;
 
     return matchesSearch && matchesGenre && matchesAvailability;
   });
@@ -238,45 +186,52 @@ function applyFilters() {
   renderBooks(filtered);
 }
 
-resultsList.innerHTML = "<li class='book-item'>Caricamento catalogo...</li>";
+function renderFavorites() {
+  favList.innerHTML = "";
 
-Papa.parse(sheetURL, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
+  const favorites = getFavorites();
+  const favoriteBooks = books.filter(book => favorites.includes(getBookId(book)));
 
-  complete: function(results) {
-    books = results.data.filter(book => clean(book.TITOLO, "") !== "");
-
-    populateGenres();
-    renderBooks(books);
-    renderFavorites();
-
-    input.addEventListener("input", applyFilters);
-    genreFilter.addEventListener("change", applyFilters);
-    availabilityFilter.addEventListener("change", applyFilters);
-    sortFilter.addEventListener("change", applyFilters);
-  },
-
-Papa.parse(sheetURL, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: function(results) {
-    books = results.data.filter(book => clean(book.TITOLO, "") !== "");
-    populateGenres();
-    renderBooks(books);
-    renderFavorites();
-
-    input.addEventListener("input", applyFilters);
-    genreFilter.addEventListener("change", applyFilters);
-    availabilityFilter.addEventListener("change", applyFilters);
-    sortFilter.addEventListener("change", applyFilters);
-  },
-  error: function(error) {
-    console.error("Errore nel caricamento del CSV:", error);
-    resultsList.innerHTML = "<li class='book-item'>Errore nel caricamento del catal
-::contentReference[oaicite:1]{index=1}
-ogo.</li>";
+  if (favoriteBooks.length === 0) {
+    favList.innerHTML = `<li class="empty-message">Nessun libro preferito.</li>`;
+    return;
   }
-});
+
+  favoriteBooks.forEach(book => {
+    const li = document.createElement("li");
+    li.className = "book-item";
+    li.innerHTML = `
+      <div class="book-title">${clean(book.TITOLO, "Titolo mancante")}</div>
+      <p>${clean(book.AUTORE, "Autore non indicato")}</p>
+    `;
+    favList.appendChild(li);
+  });
+}
+
+function loadBooks() {
+  resultsList.innerHTML = `<li class="empty-message">Caricamento catalogo...</li>`;
+
+  Papa.parse(sheetURL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function (results) {
+      books = results.data.filter(book => clean(book.TITOLO, "") !== "");
+
+      populateGenres();
+      renderBooks(books);
+      renderFavorites();
+
+      input.addEventListener("input", applyFilters);
+      genreFilter.addEventListener("change", applyFilters);
+      availabilityFilter.addEventListener("change", applyFilters);
+      sortFilter.addEventListener("change", applyFilters);
+    },
+    error: function (error) {
+      console.error("Errore nel caricamento del CSV:", error);
+      resultsList.innerHTML = `<li class="error-message">Errore nel caricamento del catalogo.</li>`;
+    }
+  });
+}
+
+loadBooks();
