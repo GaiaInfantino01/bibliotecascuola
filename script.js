@@ -258,16 +258,25 @@ Papa.parse(sheetURL, {
     sortFilter.addEventListener("change", applyFilters);
   },
 
+Papa.parse(sheetURL, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    books = results.data.filter(book => clean(book.TITOLO, "") !== "");
+    populateGenres();
+    renderBooks(books);
+    renderFavorites();
+
+    input.addEventListener("input", applyFilters);
+    genreFilter.addEventListener("change", applyFilters);
+    availabilityFilter.addEventListener("change", applyFilters);
+    sortFilter.addEventListener("change", applyFilters);
+  },
   error: function(error) {
     console.error("Errore nel caricamento del CSV:", error);
-    resultsList.innerHTML = "<li class='book-item'>Errore nel caricamento del catalogo.</li>";
+    resultsList.innerHTML = "<li class='book-item'>Errore nel caricamento del catal
+::contentReference[oaicite:1]{index=1}
+ogo.</li>";
   }
 });
-  error: function(error) {
-    console.error("Errore CSV:", error);
-    resultsList.innerHTML = "<li class='book-item'>Errore nel caricamento del catalogo.</li>";
-  }
-});  transition: box-shadow 0.2s ease, background 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  position: relative;
-}
