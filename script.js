@@ -1,40 +1,40 @@
+alert("Script collegato correttamente");
+
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwD-BejuTnjtnrQjm8nq45yUMnPlpqdVCNtN966RAOOQdRhDyBCJMcfjaHdBJDV2UmKNcCt_goyH5S/pub?output=csv";
+
+const resultsList = document.getElementById("results");
+
+resultsList.innerHTML = "<li class='book-item'>Sto caricando i libri...</li>";
 
 Papa.parse(sheetURL, {
   download: true,
   header: true,
   skipEmptyLines: true,
 
-  complete: function (results) {
-    const books = results.data;
+  complete: function(results) {
+    console.log(results.data);
 
-    const input = document.getElementById("search");
-    const resultsList = document.getElementById("results");
-    const favList = document.getElementById("favorites-list");
+    resultsList.innerHTML = "";
 
-    const genreFilter = document.getElementById("genre-filter");
-    const availabilityFilter = document.getElementById("availability-filter");
-    const sortFilter = document.getElementById("sort-filter");
-    const counter = document.getElementById("counter");
+    results.data.forEach(book => {
+      const li = document.createElement("li");
+      li.classList.add("book-item");
 
-    function normalize(value) {
-      return (value || "").toString().trim().toLowerCase();
-    }
+      li.innerHTML = `
+        <strong>${book.TITOLO || "Titolo mancante"}</strong><br>
+        ${book.AUTORE || "Autore mancante"}<br>
+        ${book.GENERE || ""}
+      `;
 
-    function renderFavorites() {
-      favList.innerHTML = "";
-      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      resultsList.appendChild(li);
+    });
+  },
 
-      books.forEach(book => {
-        if (favorites.includes(book.ISBN)) {
-          const li = document.createElement("li");
-          li.textContent = `${book.TITOLO} – ${book.AUTORE}`;
-          favList.appendChild(li);
-        }
-      });
-
-      if (favorites.length === 0) {
-        const li = document.createElement("li");
+  error: function(error) {
+    console.error(error);
+    resultsList.innerHTML = "<li class='book-item'>Errore nel caricamento del CSV.</li>";
+  }
+});        const li = document.createElement("li");
         li.textContent = "Nessun libro preferito.";
         favList.appendChild(li);
       }
