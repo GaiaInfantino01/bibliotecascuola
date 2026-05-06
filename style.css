@@ -3,38 +3,161 @@
 }
 
 body {
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  background-color: #fafafa;
-  color: #222;
   margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f6f6f6;
+  color: #222;
 }
 
 .site-header {
-  width: 100%;
-  background: #000;
+  background: #1f3c88;
+  color: white;
+  text-align: center;
+  padding: 35px 20px;
 }
 
-.site-header img {
-  width: 100%;
-  height: auto;
-  display: block;
+.site-header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+}
+
+.site-header p {
+  margin: 8px 0 0;
 }
 
 .container {
-  max-width: 950px;
+  max-width: 1000px;
   margin: 30px auto;
   padding: 0 20px;
 }
 
 #search {
   width: 100%;
-  padding: 14px 16px;
+  padding: 14px;
   font-size: 16px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  border-radius: 10px;
 }
 
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.filters select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: white;
+}
+
+.counter {
+  font-weight: bold;
+}
+
+.hint {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+#results,
+#favorites-list {
+  list-style: none;
+  padding: 0;
+}
+
+.book-item {
+  background: white;
+  margin-bottom: 15px;
+  padding: 18px;
+  border-radius: 12px;
+  border-left: 7px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
+
+.book-item:hover {
+  background: #f9fbff;
+}
+
+.book-item.disponibile-border {
+  border-left-color: #2e7d32;
+}
+
+.book-item.non-disponibile-border {
+  border-left-color: #c62828;
+}
+
+.book-title {
+  color: #1f3c88;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.book-meta {
+  margin: 4px 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.disponibile {
+  background: #e3f5e5;
+  color: #2e7d32;
+}
+
+.non-disponibile {
+  background: #fde8e8;
+  color: #c62828;
+}
+
+.fav-btn {
+  float: right;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.book-details {
+  display: none;
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.book-item.open .book-details {
+  display: block;
+}
+
+.book-details p {
+  margin: 6px 0;
+}
+
+.empty-message,
+.error-message {
+  background: white;
+  padding: 18px;
+  border-radius: 10px;
+}
+
+.error-message {
+  color: #c62828;
+}
+
+@media (max-width: 700px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
 #search:focus {
   outline: none;
   border-color: #2a5db0;
