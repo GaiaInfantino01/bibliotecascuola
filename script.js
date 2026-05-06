@@ -1,40 +1,144 @@
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwD-BejuTnjtnrQjm8nq45yUMnPlpqdVCNtN966RAOOQdRhDyBCJMcfjaHdBJDV2UmKNcCt_goyH5S/pub?output=csv";
 
+const input = document.getElementById("search");
+const resultsList = document.getElementById("results");
+const favList = document.getElementById("favorites-list");
+const genreFilter = document.getElementById("genre-filter");
+const availabilityFilter = document.getElementById("availability-filter");
+const sortFilter = document.getElementById("sort-filter");
+const counter = document.getElementById("counter");
+
+let books = [];
+
+function normalize(value) {
+  return (value || "").toString().trim().toLowerCase();
+}
+
+function renderBooks(list) {
+  resultsList.innerHTML = "";
+
+  if (counter) {
+    counter.textContent = `${list.length} libro/i trovato/i`;
+  }
+
+  if (list.length === 0) {
+    resultsList.innerHTML = "<li class='book-item'>Nessun libro trovato.</li>";
+    return;
+  }
+
+  list.forEach(book => {
+    const li = document.createElement("li");
+    li.classList.add("book-item");
+
+    const disponibilita = normalize(book.DISPONIBILITA);
+    const isDisponibile = disponibilita === "disponibile";
+
+    li.classList.add(isDisponibile ? "disponibile-border" : "non-disponibile-border");
+
+    li.innerHTML = `
+      <div class="book-main">
+        <strong>${book.TITOLO || "Titolo non disponibile"}</strong>
+        ${book.AUTORE || "Autore non disponibile"} – ${book.EDITORE || ""}, ${book.LUOGO || ""} (${book.ANNO || "s.d."})<br>
+        <em>${book.GENERE || "Genere non indicato"}</em> | ISBN: ${book.ISBN || "non disponibile"}<br>
+        Disponibilità:
+        <span class="disponibilita ${isDisponibile ? "disponibile" : "non-disponibile"}">
+          ${book.DISPONIBILITA || "Non indicata"}
+        </span>
+      </div>
+
+      <div class="book-abstract">
+        <p>${book.ABSTRACT || "Abstract non disponibile."}</p>
+      </div>
+    `;
+
+    li.addEventListener("click", () => {
+      li.classList.toggle("open");
+    });
+
+    resultsList.appendChild(li);
+  });
+}
+
+function populateGenres() {
+  if (!genreFilter) return;
+
+  const genres = [...new Set(
+    books
+      .map(book => book.GENERE)
+      .filter(genre => genre && genre.trim() !== "")
+  )].sort();
+
+  genres.forEach(genre => {
+    const option = document.createElement("option");
+    option.value = genre;
+    option.textContent = genre;
+    genreFilter.appendChild(option);
+  });
+}
+
+function applyFilters() {
+  const query = normalize(input.value);
+  const selectedGenre = genreFilter ? genreFilter.value : "";
+  const selectedAvailability = availabilityFilter ? availabilityFilter.value : "";
+  const selectedSort = sortFilter ? sortFilter.value : "";
+
+  let filtered = books.filter(book => {
+    const matchesSearch =
+      normalize(book.TITOLO).includes(query) ||
+      normalize(book.AUTORE).includes(query) ||
+      normalize(book.GENERE).includes(query) ||
+      normalize(book.EDITORE).includes(query) ||
+      normalize(book.ISBN).includes(query);
+
+    const matchesGenre =
+      selectedGenre === "" || book.GENERE === selectedGenre;
+
+    const matchesAvailability =
+      selectedAvailability === "" ||
+      normalize(book.DISPONIBILITA) === selectedAvailability;
+
+    return matchesSearch && matchesGenre && matchesAvailability;
+  });
+
+  if (selectedSort === "titolo") {
+    filtered.sort((a, b) => normalize(a.TITOLO).localeCompare(normalize(b.TITOLO)));
+  }
+
+  if (selectedSort === "autore") {
+    filtered.sort((a, b) => normalize(a.AUTORE).localeCompare(normalize(b.AUTORE)));
+  }
+
+  if (selectedSort === "anno") {
+    filtered.sort((a, b) => Number(a.ANNO || 0) - Number(b.ANNO || 0));
+  }
+
+  renderBooks(filtered);
+}
+
 Papa.parse(sheetURL, {
   download: true,
   header: true,
   skipEmptyLines: true,
 
-  complete: function (results) {
-    const books = results.data;
+  complete: function(results) {
+    books = results.data;
 
-    const input = document.getElementById("search");
-    const resultsList = document.getElementById("results");
-    const favList = document.getElementById("favorites-list");
+    console.log("Libri caricati:", books);
 
-    const genreFilter = document.getElementById("genre-filter");
-    const availabilityFilter = document.getElementById("availability-filter");
-    const sortFilter = document.getElementById("sort-filter");
-    const counter = document.getElementById("counter");
+    populateGenres();
+    renderBooks(books);
 
-    function normalize(value) {
-      return (value || "").toString().trim().toLowerCase();
-    }
+    input.addEventListener("input", applyFilters);
+    if (genreFilter) genreFilter.addEventListener("change", applyFilters);
+    if (availabilityFilter) availabilityFilter.addEventListener("change", applyFilters);
+    if (sortFilter) sortFilter.addEventListener("change", applyFilters);
+  },
 
-    function renderFavorites() {
-      favList.innerHTML = "";
-      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-
-      books.forEach(book => {
-        if (favorites.includes(book.ISBN)) {
-          const li = document.createElement("li");
-          li.textContent = `${book.TITOLO} – ${book.AUTORE}`;
-          favList.appendChild(li);
-        }
-      });
-
-      if (favorites.length === 0) {
-        const li = document.createElement("li");
+  error: function(error) {
+    console.error("Errore nel caricamento del CSV:", error);
+    resultsList.innerHTML = "<li class='book-item'>Errore nel caricamento del catalogo.</li>";
+  }
+});        const li = document.createElement("li");
         li.textContent = "Nessun libro preferito.";
         favList.appendChild(li);
       }
