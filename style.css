@@ -78,4 +78,38 @@ body {
 .book-item.open .book-abstract { max-height: 400px; opacity: 1; }
 
 /* HINT */
-.hint { font-size: 0.85em; color: #666; margin-bottom: 20px; }
+.hint { font-size: 0.85em; color: #666; margin-bottom: 20px; } 
+/* FILTRI */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 14px 0 10px;
+}
+
+.filters select {
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.filters select:focus {
+  outline: none;
+  border-color: #2a5db0;
+  box-shadow: 0 0 0 2px rgba(42, 93, 176, 0.15);
+}
+
+.counter {
+  font-size: 0.9em;
+  color: #444;
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
