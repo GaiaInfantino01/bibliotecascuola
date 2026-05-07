@@ -4,579 +4,295 @@ const input = document.getElementById("search");
 const resultsList = document.getElementById("results");
 const favList = document.getElementById("favorites-list");
 const recommendedList = document.getElementById("recommended-list");
-
 const genreFilter = document.getElementById("genre-filter");
 const availabilityFilter = document.getElementById("availability-filter");
 const sortFilter = document.getElementById("sort-filter");
-
 const counter = document.getElementById("counter");
 
 let books = [];
 
-/* ---------------- UTILITIES ---------------- */
-
 function clean(value, fallback = "Non indicato") {
-if (value === undefined || value === null) return fallback;
-
-const text = String(value).trim();
-
-return text !== "" ? text : fallback;
+  const text = value ? String(value).trim() : "";
+  return text || fallback;
 }
 
 function normalize(value) {
-return clean(value, "").toLowerCase();
+  return clean(value, "").toLowerCase();
 }
 
 function getBookId(book) {
-return (
-clean(book.ISBN, "") ||
-clean(book.TITOLO, "") + "-" + clean(book.AUTORE, "")
-);
+  return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
 }
-
-/* ---------------- COPERTINE ---------------- */
 
 function getBookCover(book) {
+  const manualCover = clean(book.COPERTINA || book.Copertina || book.copertina, "");
 
-const manualCover =
-book.COPERTINA ||
-book.Copertina ||
-book.copertina ||
-"";
+  if (manualCover !== "") {
+    return manualCover;
+  }
 
-if (manualCover.trim() !== "") {
-return manualCover;
+  const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
+
+  if (isbn !== "") {
+    const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
+    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
+  }
+
+  return "https://placehold.co/140x210?text=No+Cover";
 }
-
-const isbn =
-book.ISBN ||
-book.isbn ||
-"";
-
-if (isbn.trim() !== "") {
-
-```
-const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
-
-return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
-```
-
-}
-
-return "https://placehold.co/140x210?text=No+Cover";
-}
-
-/* ---------------- PREFERITI ---------------- */
 
 function getFavorites() {
-
-try {
-
-```
-return JSON.parse(
-  localStorage.getItem("favorites")
-) || [];
-```
-
-} catch {
-
-```
-return [];
-```
-
-}
+  try {
+    return JSON.parse(localStorage.getItem("favorites")) || [];
+  } catch {
+    return [];
+  }
 }
 
 function saveFavorites(favorites) {
-
-localStorage.setItem(
-"favorites",
-JSON.stringify(favorites)
-);
+  localStorage.setItem("favorites", JSON.stringify(favorites));
 }
-
-/* ---------------- DISPONIBILITÀ ---------------- */
 
 function isBookAvailable(book) {
+  const disponibilita = normalize(book.DISPONIBILITA);
+  const quantita = Number(book.QUANTITA || 0);
 
-const disponibilita =
-normalize(book.DISPONIBILITA);
+  if (disponibilita.includes("non")) return false;
+  if (disponibilita.includes("disponibile")) return true;
+  if (quantita > 0) return true;
 
-if (disponibilita.includes("non")) {
-return false;
+  return false;
 }
-
-return true;
-}
-
-/* ---------------- CARD LIBRO ---------------- */
 
 function createBookCard(book) {
+  const li = document.createElement("li");
+  const available = isBookAvailable(book);
+  const bookId = getBookId(book);
+  const favorites = getFavorites();
+  const isFav = favorites.includes(bookId);
+  const cover = getBookCover(book);
 
-const li = document.createElement("li");
+  li.className = `book-item ${available ? "disponibile-border" : "non-disponibile-border"}`;
 
-const available =
-isBookAvailable(book);
+  li.innerHTML = `
+    <div class="book-content">
+      <button class="fav-btn" type="button">${isFav ? "❤️" : "♡"}</button>
 
-const bookId =
-getBookId(book);
+      <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
 
-const favorites =
-getFavorites();
+      <p><strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}</p>
+      <p><strong>Editore:</strong> ${clean(book.EDITORE)}</p>
+      <p><strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}</p>
+      <p><strong>Genere:</strong> ${clean(book.GENERE)}</p>
 
-const isFav =
-favorites.includes(bookId);
+      <span class="availability ${available ? "disponibile" : "non-disponibile"}">
+        ${available ? "Disponibile" : "Non disponibile"}
+      </span>
 
-li.className =
-"book-item " +
-(available
-? "disponibile-border"
-: "non-disponibile-border");
+      <div class="book-details">
+        <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
+        <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
+        <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
+        <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
+        <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
+        <p><strong>Quantità:</strong> ${clean(book.QUANTITA)}</p>
+        <p><strong>Prestito:</strong> ${clean(book.PRESTITO)}</p>
+        <p><strong>Volume:</strong> ${clean(book.VOLUME)}</p>
+        <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
+        <p><strong>Abstract:</strong> ${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
+      </div>
+    </div>
 
-li.innerHTML = `
+    <img
+      class="book-cover"
+      src="${cover}"
+      alt="Copertina di ${clean(book.TITOLO, "libro")}"
+      onerror="this.src='https://placehold.co/140x210?text=No+Cover'"
+    >
+  `;
 
-```
-<div class="book-content">
+  li.addEventListener("click", function (event) {
+    if (event.target.classList.contains("fav-btn")) return;
+    li.classList.toggle("open");
+  });
 
-  <button class="fav-btn">
-    ${isFav ? "❤️" : "♡"}
-  </button>
+  const favButton = li.querySelector(".fav-btn");
 
-  <h3>
-    ${clean(book.TITOLO, "Titolo mancante")}
-  </h3>
+  favButton.addEventListener("click", function (event) {
+    event.stopPropagation();
 
-  <p>
-    <strong>Autore:</strong>
-    ${clean(book.AUTORE)}
-  </p>
+    let favorites = getFavorites();
 
-  <p>
-    <strong>Editore:</strong>
-    ${clean(book.EDITORE)}
-  </p>
+    if (favorites.includes(bookId)) {
+      favorites = favorites.filter(id => id !== bookId);
+      favButton.textContent = "♡";
+    } else {
+      favorites.push(bookId);
+      favButton.textContent = "❤️";
+    }
 
-  <p>
-    <strong>Anno:</strong>
-    ${clean(book.ANNO)}
-  </p>
+    saveFavorites(favorites);
+    renderFavorites();
+  });
 
-  <p>
-    <strong>Genere:</strong>
-    ${clean(book.GENERE)}
-  </p>
-
-  <span class="availability ${available ? "disponibile" : "non-disponibile"}">
-    ${available ? "Disponibile" : "Non disponibile"}
-  </span>
-
-  <div class="book-details">
-
-    <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
-
-    <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
-
-    <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
-
-    <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
-
-    <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
-
-    <p>
-      <strong>Abstract:</strong>
-      ${clean(book.ABSTRACT, "Non disponibile")}
-    </p>
-
-  </div>
-
-</div>
-
-<img
-  class="book-cover"
-  src="${getBookCover(book)}"
-  alt="Copertina"
-  onerror="this.src='https://placehold.co/140x210?text=No+Cover'"
->
-```
-
-`;
-
-/* DETTAGLI */
-
-li.addEventListener("click", function (event) {
-
-```
-if (
-  event.target.classList.contains("fav-btn")
-) return;
-
-li.classList.toggle("open");
-```
-
-});
-
-/* PREFERITI */
-
-const favButton =
-li.querySelector(".fav-btn");
-
-favButton.addEventListener("click", function (event) {
-
-```
-event.stopPropagation();
-
-let favorites =
-  getFavorites();
-
-if (favorites.includes(bookId)) {
-
-  favorites =
-    favorites.filter(id => id !== bookId);
-
-  favButton.textContent = "♡";
-
-} else {
-
-  favorites.push(bookId);
-
-  favButton.textContent = "❤️";
+  return li;
 }
-
-saveFavorites(favorites);
-
-renderFavorites();
-```
-
-});
-
-return li;
-}
-
-/* ---------------- RENDER LIBRI ---------------- */
 
 function renderBooks(list) {
+  resultsList.innerHTML = "";
+  counter.textContent = `${list.length} libro/i trovato/i`;
 
-resultsList.innerHTML = "";
+  if (list.length === 0) {
+    resultsList.innerHTML = `<li class="empty-message">Nessun libro trovato.</li>`;
+    return;
+  }
 
-counter.textContent =
-list.length + " libro/i trovato/i";
-
-if (list.length === 0) {
-
-```
-resultsList.innerHTML =
-  "<li>Nessun libro trovato.</li>";
-
-return;
-```
-
+  list.forEach(book => {
+    resultsList.appendChild(createBookCard(book));
+  });
 }
-
-list.forEach(book => {
-
-```
-resultsList.appendChild(
-  createBookCard(book)
-);
-```
-
-});
-}
-
-/* ---------------- GENERI ---------------- */
 
 function populateGenres() {
+  genreFilter.innerHTML = `<option value="">Tutti i generi</option>`;
 
-genreFilter.innerHTML =
-'<option value="">Tutti i generi</option>';
+  const genres = [...new Set(
+    books
+      .map(book => clean(book.GENERE, ""))
+      .filter(genre => genre !== "")
+  )].sort();
 
-const genres = [...new Set(
-
-```
-books.map(book =>
-  clean(book.GENERE, "")
-)
-```
-
-)].filter(Boolean).sort();
-
-genres.forEach(genre => {
-
-```
-const option =
-  document.createElement("option");
-
-option.value = genre;
-
-option.textContent = genre;
-
-genreFilter.appendChild(option);
-```
-
-});
+  genres.forEach(genre => {
+    const option = document.createElement("option");
+    option.value = genre;
+    option.textContent = genre;
+    genreFilter.appendChild(option);
+  });
 }
-
-/* ---------------- FILTRI ---------------- */
 
 function applyFilters() {
+  const query = normalize(input.value);
+  const selectedGenre = genreFilter.value;
+  const selectedAvailability = availabilityFilter.value;
+  const selectedSort = sortFilter.value;
 
-const query =
-normalize(input.value);
+  let filtered = books.filter(book => {
+    const searchableText = Object.values(book).join(" ").toLowerCase();
+    const available = isBookAvailable(book);
 
-const selectedGenre =
-genreFilter.value;
+    const matchesSearch = searchableText.includes(query);
+    const matchesGenre = selectedGenre === "" || clean(book.GENERE, "") === selectedGenre;
+    const matchesAvailability =
+      selectedAvailability === "" ||
+      (selectedAvailability === "disponibile" && available) ||
+      (selectedAvailability === "non disponibile" && !available);
 
-const selectedAvailability =
-availabilityFilter.value;
+    return matchesSearch && matchesGenre && matchesAvailability;
+  });
 
-const selectedSort =
-sortFilter.value;
+  if (selectedSort === "titolo") {
+    filtered.sort((a, b) => normalize(a.TITOLO).localeCompare(normalize(b.TITOLO)));
+  }
 
-let filtered = books.filter(book => {
+  if (selectedSort === "autore") {
+    filtered.sort((a, b) => normalize(a.AUTORE).localeCompare(normalize(b.AUTORE)));
+  }
 
-```
-const searchableText =
-  Object.values(book)
-    .join(" ")
-    .toLowerCase();
+  if (selectedSort === "anno") {
+    filtered.sort((a, b) => Number(a.ANNO || 0) - Number(b.ANNO || 0));
+  }
 
-const available =
-  isBookAvailable(book);
-
-const matchesSearch =
-  searchableText.includes(query);
-
-const matchesGenre =
-  selectedGenre === "" ||
-  clean(book.GENERE, "") === selectedGenre;
-
-const matchesAvailability =
-  selectedAvailability === "" ||
-  (selectedAvailability === "disponibile" && available) ||
-  (selectedAvailability === "non disponibile" && !available);
-
-return (
-  matchesSearch &&
-  matchesGenre &&
-  matchesAvailability
-);
-```
-
-});
-
-if (selectedSort === "titolo") {
-
-```
-filtered.sort((a, b) =>
-  normalize(a.TITOLO)
-    .localeCompare(normalize(b.TITOLO))
-);
-```
-
+  renderBooks(filtered);
 }
-
-if (selectedSort === "autore") {
-
-```
-filtered.sort((a, b) =>
-  normalize(a.AUTORE)
-    .localeCompare(normalize(b.AUTORE))
-);
-```
-
-}
-
-renderBooks(filtered);
-}
-
-/* ---------------- PREFERITI ---------------- */
 
 function renderFavorites() {
+  favList.innerHTML = "";
 
-favList.innerHTML = "";
+  const favorites = getFavorites();
+  const favoriteBooks = books.filter(book => favorites.includes(getBookId(book)));
 
-const favorites =
-getFavorites();
+  if (favoriteBooks.length === 0) {
+    favList.innerHTML = `<li class="empty-message">Nessun libro preferito.</li>`;
+    return;
+  }
 
-const favoriteBooks =
-books.filter(book =>
-favorites.includes(getBookId(book))
-);
+  favoriteBooks.forEach(book => {
+    const li = document.createElement("li");
+    li.className = "book-item favorite-small";
 
-if (favoriteBooks.length === 0) {
+    li.innerHTML = `
+      <div class="book-content">
+        <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
+        <p>${clean(book.AUTORE, "Autore non indicato")}</p>
+      </div>
 
-```
-favList.innerHTML =
-  "<li>Nessun preferito.</li>";
+      <img
+        class="book-cover small-cover"
+        src="${getBookCover(book)}"
+        alt="Copertina di ${clean(book.TITOLO, "libro")}"
+        onerror="this.src='https://placehold.co/80x120?text=No+Cover'"
+      >
+    `;
 
-return;
-```
-
+    favList.appendChild(li);
+  });
 }
-
-favoriteBooks.forEach(book => {
-
-```
-const li =
-  document.createElement("li");
-
-li.className =
-  "book-item favorite-small";
-
-li.innerHTML = `
-
-  <div class="book-content">
-
-    <h3>
-      ${clean(book.TITOLO)}
-    </h3>
-
-    <p>
-      ${clean(book.AUTORE)}
-    </p>
-
-  </div>
-
-  <img
-    class="book-cover small-cover"
-    src="${getBookCover(book)}"
-    alt="Copertina"
-    onerror="this.src='https://placehold.co/80x120?text=No+Cover'"
-  >
-`;
-
-favList.appendChild(li);
-```
-
-});
-}
-
-/* ---------------- MENSOLA DEL PROF ---------------- */
 
 function renderRecommendedBooks() {
+  recommendedList.innerHTML = "";
 
-recommendedList.innerHTML = "";
+  const recommendedBooks = books.filter(book => {
+    const value = normalize(book.CONSIGLIATO);
+    return value === "si" || value === "sì" || value === "yes";
+  });
 
-const recommendedBooks =
-books.filter(book => {
+  if (recommendedBooks.length === 0) {
+    recommendedList.innerHTML = `<li class="empty-message">Nessun libro consigliato al momento.</li>`;
+    return;
+  }
 
-```
-  const value =
-    normalize(book.CONSIGLIATO);
-
-  return (
-    value === "si" ||
-    value === "sì" ||
-    value === "yes"
-  );
-});
-```
-
-if (recommendedBooks.length === 0) {
-
-```
-recommendedList.innerHTML =
-  "<li>Nessun libro consigliato.</li>";
-
-return;
-```
-
+  recommendedBooks.forEach(book => {
+    const card = createBookCard(book);
+    card.classList.add("recommended-card");
+    recommendedList.appendChild(card);
+  });
 }
-
-recommendedBooks.forEach(book => {
-
-```
-recommendedList.appendChild(
-  createBookCard(book)
-);
-```
-
-});
-}
-
-/* ---------------- CARICAMENTO CSV ---------------- */
 
 function loadBooks() {
+  resultsList.innerHTML = `<li class="empty-message">Caricamento catalogo...</li>`;
 
-Papa.parse(sheetURL, {
+  Papa.parse(sheetURL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
 
-```
-download: true,
+    complete: function (results) {
+      books = results.data.filter(book => clean(book.TITOLO, "") !== "");
 
-header: true,
+      populateGenres();
+      renderBooks(books);
+      renderRecommendedBooks();
+      renderFavorites();
 
-skipEmptyLines: true,
+      input.addEventListener("input", applyFilters);
+      genreFilter.addEventListener("change", applyFilters);
+      availabilityFilter.addEventListener("change", applyFilters);
+      sortFilter.addEventListener("change", applyFilters);
+    },
 
-complete: function(results) {
-
-  books = results.data;
-
-  populateGenres();
-
-  renderBooks(books);
-
-  renderFavorites();
-
-  renderRecommendedBooks();
-
-  input.addEventListener(
-    "input",
-    applyFilters
-  );
-
-  genreFilter.addEventListener(
-    "change",
-    applyFilters
-  );
-
-  availabilityFilter.addEventListener(
-    "change",
-    applyFilters
-  );
-
-  sortFilter.addEventListener(
-    "change",
-    applyFilters
-  );
-},
-
-error: function(error) {
-
-  console.error(error);
-
-  resultsList.innerHTML =
-    "<li>Errore nel caricamento del catalogo.</li>";
-}
-```
-
-});
+    error: function (error) {
+      console.error("Errore nel caricamento del CSV:", error);
+      resultsList.innerHTML = `<li class="empty-message">Errore nel caricamento del catalogo.</li>`;
+    }
+  });
 }
 
 loadBooks();
 
-/* ---------------- MENSOLA TOGGLE ---------------- */
-
-const mensolaButton =
-document.getElementById(
-"toggle-mensola-prof"
-);
-
-const mensolaSection =
-document.getElementById(
-"mensola-prof"
-);
+const mensolaButton = document.getElementById("toggle-mensola-prof");
+const mensolaSection = document.getElementById("mensola-prof");
 
 if (mensolaButton && mensolaSection) {
-
-mensolaButton.addEventListener(
-"click",
-function () {
-
-```
-  mensolaSection.classList.toggle("open");
-
-}
-```
-
-);
+  mensolaButton.addEventListener("click", function () {
+    mensolaSection.classList.toggle("open");
+  });
 }
