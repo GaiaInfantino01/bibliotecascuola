@@ -1,4 +1,3 @@
-```javascript
 const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwD-BejuTnjtnrQjm8nq45yUMnPlpqdVCNtN966RAOOQdRhDyBCJMcfjaHdBJDV2UmKNcCt_goyH5S/pub?output=csv";
 
 const input = document.getElementById("search");
@@ -485,4 +484,3 @@ if (mensolaButton && mensolaSection) {
 
   });
 }
-```
