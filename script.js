@@ -51,12 +51,18 @@ function getBookId(book) {
 
 /* COPERTINE */
 function getBookCover(book) {
-  const manualCover = clean(
-    getField(book, "COPERTINA", "Copertina", "copertina"),
+  let manualCover = clean(
+    getField(book, "COPERTINA", "Copertina", "copertina", "URL COPERTINA", "Url copertina", "url copertina"),
     ""
   );
 
   if (manualCover !== "") {
+    const driveMatch = manualCover.match(/\/d\/([^/]+)/);
+
+    if (driveMatch && driveMatch[1]) {
+      manualCover = `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+    }
+
     return manualCover;
   }
 
