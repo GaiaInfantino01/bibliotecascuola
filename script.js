@@ -254,3 +254,11 @@ renderFavorites();
 }
 
 loadBooks();
+const mensolaButton = document.getElementById("toggle-mensola-prof");
+const mensolaSection = document.getElementById("mensola-prof");
+
+if (mensolaButton && mensolaSection) {
+  mensolaButton.addEventListener("click", function () {
+    mensolaSection.classList.toggle("open");
+  });
+}
