@@ -16,11 +16,12 @@ body {
 /* HERO */
 
 .hero {
-  min-height: 340px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  min-height: 360px;
+  background-image: url("https://i.imgur.com/FPxZ91O.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 
   background:
     linear-gradient(rgba(15, 23, 42, 0.62), rgba(15, 23, 42, 0.72)),
@@ -70,7 +71,7 @@ body {
 
 .container {
   max-width: 1180px;
-  margin: -55px auto 50px;
+  margin: 40px auto 50px;
   padding: 0 22px;
 }
 
