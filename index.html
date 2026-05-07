@@ -1,48 +1,55 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>BiblioLeo - Catalogo online</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-
-<header class="hero"></header>
+  <header class="hero"></header>
 
   <main class="container">
     <nav class="quick-menu">
-  <a href="#catalogo">Catalogo</a>
-  <a href="#mensola-prof">La mensola del prof</a>
-  <a href="#preferiti">Preferiti</a>
-</nav>
+      <a href="#catalogo">Catalogo</a>
+      <a href="#mensola-prof">La mensola del prof</a>
+      <a href="#preferiti">Preferiti</a>
+    </nav>
 
-<section id="mensola-prof" class="recommended-section">
-  <div class="recommended-header">
-    <span class="recommended-icon">⭐</span>
-    <div>
-      <h2>La mensola del prof</h2>
-      <p>
-        “La mensola del prof” è uno spazio dedicato ai libri consigliati dai docenti della scuola.
-        Ogni mese gli insegnanti propongono una selezione di letture scelte per il loro valore
-        culturale, educativo e umano: romanzi, saggi, classici e opere contemporanee capaci di
-        suscitare curiosità, emozioni e riflessioni.
-      </p>
-      <p>
-        Questa sezione nasce con l’obiettivo di accompagnare studenti e lettori alla scoperta di
-        nuovi autori, temi e storie, trasformando la lettura in un’occasione di crescita, confronto
-        e condivisione.
-      </p>
-    </div>
-  </div>
+    <section id="mensola-prof" class="recommended-section">
+      <button id="toggle-mensola-prof" class="recommended-header" type="button">
+        <span class="recommended-icon">⭐</span>
 
-  <ul id="recommended-list"></ul>
-</section>
-<section id="preferiti" class="favorites-section">
+        <span class="recommended-title-box">
+          <span class="recommended-title">La mensola del prof</span>
+          <span class="recommended-subtitle">Clicca per leggere la descrizione e vedere i libri consigliati</span>
+        </span>
+
+        <span class="recommended-arrow">▼</span>
+      </button>
+
+      <div id="recommended-content" class="recommended-content">
+        <div class="recommended-description">
+          <p>
+            “La mensola del prof” è uno spazio dedicato ai libri consigliati dai docenti della scuola.
+            Ogni mese gli insegnanti propongono una selezione di letture scelte per il loro valore
+            culturale, educativo e umano: romanzi, saggi, classici e opere contemporanee capaci di
+            suscitare curiosità, emozioni e riflessioni.
+          </p>
+
+          <p>
+            Questa sezione nasce con l’obiettivo di accompagnare studenti e lettori alla scoperta di
+            nuovi autori, temi e storie, trasformando la lettura in un’occasione di crescita, confronto
+            e condivisione.
+          </p>
+        </div>
+
+        <ul id="recommended-list"></ul>
+      </div>
+    </section>
+
+    <section id="preferiti" class="favorites-section">
       <h2>Cerca un libro</h2>
 
       <input
@@ -52,7 +59,6 @@
       />
 
       <div class="filters">
-
         <select id="genre-filter">
           <option value="">Tutti i generi</option>
         </select>
@@ -69,43 +75,27 @@
           <option value="autore">Autore A-Z</option>
           <option value="anno">Anno crescente</option>
         </select>
-
       </div>
 
       <p id="counter" class="counter"></p>
-
     </section>
 
     <section id="catalogo" class="catalog-section">
-
       <div class="section-title">
-
         <h2>Catalogo libri</h2>
-
-        <p>
-          Clicca su una scheda per vedere i dettagli del libro.
-        </p>
-
+        <p>Clicca su una scheda per vedere i dettagli del libro.</p>
       </div>
 
       <ul id="results"></ul>
-
     </section>
 
     <section class="favorites-section">
-
       <h2>❤️ Libri preferiti</h2>
-
       <ul id="favorites-list"></ul>
-
     </section>
-
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
   <script src="script.js"></script>
-
 </body>
-
 </html>
