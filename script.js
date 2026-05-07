@@ -25,45 +25,42 @@ function getBookId(book) {
 }
 
 function getBookCover(book) {
-  const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
-
-  if (isbn !== "") {
-    const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
-    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg?default=false`;
-  }
-
-  return "https://placehold.co/120x180?text=No+Cover";
+  return "https://placehold.co/140x210?text=Caricamento";
 }
 
 async function getBookCoverFromGoogle(book, imgElement) {
+  const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
   const titolo = clean(book.TITOLO, "");
   const autore = clean(book.AUTORE, "");
 
-  if (!titolo) {
-    imgElement.src = "https://placehold.co/120x180?text=No+Cover";
-    return;
+  let query = "";
+
+  if (isbn !== "") {
+    const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
+    query = `isbn:${cleanIsbn}`;
+  } else {
+    query = `intitle:${titolo} inauthor:${autore}`;
   }
 
-  const query = encodeURIComponent(`${titolo} ${autore}`);
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${query}`;
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
 
   try {
     const response = await fetch(url);
     const data = await response.json();
 
-    const thumbnail = data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail;
+    const image =
+      data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail ||
+      data.items?.[0]?.volumeInfo?.imageLinks?.smallThumbnail;
 
-    if (thumbnail) {
-      imgElement.src = thumbnail.replace("http://", "https://");
+    if (image) {
+      imgElement.src = image.replace("http://", "https://");
     } else {
-      imgElement.src = "https://placehold.co/120x180?text=No+Cover";
+      imgElement.src = "https://placehold.co/140x210?text=No+Cover";
     }
   } catch (error) {
-    console.log("Copertina Google Books non trovata:", error);
-    imgElement.src = "https://placehold.co/120x180?text=No+Cover";
+    imgElement.src = "https://placehold.co/140x210?text=No+Cover";
   }
-}
-
+} 
 function getFavorites() {
   try {
     return JSON.parse(localStorage.getItem("favorites")) || [];
@@ -132,18 +129,9 @@ function createBookCard(book) {
       alt="Copertina di ${clean(book.TITOLO, "libro")}"
     >
   `;
+const coverImg = li.querySelector(".book-cover");
 
-  const coverImg = li.querySelector(".book-cover");
-
-  coverImg.addEventListener("error", function () {
-    getBookCoverFromGoogle(book, this);
-  });
-
-  coverImg.addEventListener("load", function () {
-    if (this.naturalWidth <= 1 || this.naturalHeight <= 1) {
-      getBookCoverFromGoogle(book, this);
-    }
-  });
+getBookCoverFromGoogle(book, coverImg);
 
   li.addEventListener("click", function (event) {
     if (event.target.classList.contains("fav-btn")) return;
