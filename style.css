@@ -205,15 +205,10 @@ section {
 
 .book-item {
   display: flex;
-  gap: 20px;
+  flex-direction: row-reverse;
+  justify-content: space-between;
   align-items: flex-start;
-  background: white;
-  padding: 20px;
-  border-radius: 18px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(69, 26, 3, 0.08);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 28px;
 }
 
 .book-item:hover {
@@ -229,15 +224,18 @@ section {
   border-left: 8px solid #dc2626;
 }
 
-.book-cover {
-  width: 120px;
-  height: 180px;
+..book-cover {
+  width: 140px;
+  height: 210px;
   object-fit: cover;
   border-radius: 12px;
   background: #eee;
   flex-shrink: 0;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-}
+} 
+.book-content {
+  flex: 1;
+} 
 
 .small-cover {
   width: 80px;
@@ -327,9 +325,9 @@ section {
     font-size: 1.5rem;
   }
 
-  .book-item {
-    flex-direction: column;
-  }
+.book-item {
+  flex-direction: column-reverse;
+}
 
   .book-cover {
     width: 100%;
