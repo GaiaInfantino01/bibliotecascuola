@@ -19,7 +19,16 @@ function clean(value, fallback = "Non indicato") {
 function normalize(value) {
   return clean(value, "").toLowerCase();
 }
+function getBookCover(book) {
+  const isbn = book.isbn || book.ISBN || book.Isbn || "";
 
+  if (isbn.trim() !== "") {
+    const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
+    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg`;
+  }
+
+  return "https://placehold.co/120x180?text=No+Cover";
+}
 function getBookId(book) {
   return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
 }
