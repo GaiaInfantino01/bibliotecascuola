@@ -3,6 +3,7 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwD-BejuTnjtn
 const input = document.getElementById("search");
 const resultsList = document.getElementById("results");
 const favList = document.getElementById("favorites-list");
+const recommendedList = document.getElementById("recommended-list");
 const genreFilter = document.getElementById("genre-filter");
 const availabilityFilter = document.getElementById("availability-filter");
 const sortFilter = document.getElementById("sort-filter");
@@ -200,7 +201,29 @@ function renderFavorites() {
     favList.appendChild(li);
   });
 }
+function renderRecommendedBooks() {
+  recommendedList.innerHTML = "";
 
+  const recommendedBooks = books.filter(book => {
+    const value = normalize(book.CONSIGLIATO);
+    return value === "si" || value === "sì" || value === "yes";
+  });
+
+  if (recommendedBooks.length === 0) {
+    recommendedList.innerHTML = `
+      <li class="empty-message">
+        Nessun libro consigliato al momento.
+      </li>
+    `;
+    return;
+  }
+
+  recommendedBooks.forEach(book => {
+    const card = createBookCard(book);
+    card.classList.add("recommended-card");
+    recommendedList.appendChild(card);
+  });
+}
 function loadBooks() {
   resultsList.innerHTML = `<li class="empty-message">Caricamento catalogo...</li>`;
 
@@ -214,7 +237,8 @@ function loadBooks() {
 
       populateGenres();
       renderBooks(books);
-      renderFavorites();
+renderRecommendedBooks();
+renderFavorites();
 
       input.addEventListener("input", applyFilters);
       genreFilter.addEventListener("change", applyFilters);
