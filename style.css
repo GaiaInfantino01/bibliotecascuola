@@ -602,3 +602,21 @@ body {
     transform: translateY(0);
   }
 }
+.book-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.book-cover {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #eee;
+  flex-shrink: 0;
+}
+
+.book-info {
+  flex: 1;
+}
