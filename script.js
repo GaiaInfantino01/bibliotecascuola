@@ -20,50 +20,57 @@ function normalize(value) {
   return clean(value, "").toLowerCase();
 }
 
-function getBookId(book) {
-  return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
+function getField(book, ...names) {
+  for (const name of names) {
+    if (book[name] !== undefined && book[name] !== null && String(book[name]).trim() !== "") {
+      return book[name];
+    }
+  }
+  return "";
 }
 
+function getTitle(book) {
+  return getField(book, "TITOLO", "Titolo", "titolo");
+}
+
+function getAuthor(book) {
+  return getField(book, "AUTORE", "Autore", "autore");
+}
+
+function getGenre(book) {
+  return getField(book, "GENERE", "Genere", "genere");
+}
+
+function getIsbn(book) {
+  return getField(book, "ISBN", "Isbn", "isbn");
+}
+
+function getBookId(book) {
+  return clean(getIsbn(book), "") || `${clean(getTitle(book), "")}-${clean(getAuthor(book), "")}`;
+}
+
+/* COPERTINE */
 function getBookCover(book) {
-  const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
+  const manualCover = clean(
+    getField(book, "COPERTINA", "Copertina", "copertina"),
+    ""
+  );
+
+  if (manualCover !== "") {
+    return manualCover;
+  }
+
+  const isbn = clean(getIsbn(book), "");
 
   if (isbn !== "") {
     const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
-    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg?default=false`;
+    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
   }
 
-  return "https://placehold.co/120x180?text=No+Cover";
+  return "https://placehold.co/140x210?text=No+Cover";
 }
 
-async function getBookCoverFromGoogle(book, imgElement) {
-  const titolo = clean(book.TITOLO, "");
-  const autore = clean(book.AUTORE, "");
-
-  if (!titolo) {
-    imgElement.src = "https://placehold.co/120x180?text=No+Cover";
-    return;
-  }
-
-  const query = encodeURIComponent(`${titolo} ${autore}`);
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${query}`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    const thumbnail = data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail;
-
-    if (thumbnail) {
-      imgElement.src = thumbnail.replace("http://", "https://");
-    } else {
-      imgElement.src = "https://placehold.co/120x180?text=No+Cover";
-    }
-  } catch (error) {
-    console.log("Copertina Google Books non trovata:", error);
-    imgElement.src = "https://placehold.co/120x180?text=No+Cover";
-  }
-}
-
+/* PREFERITI */
 function getFavorites() {
   try {
     return JSON.parse(localStorage.getItem("favorites")) || [];
@@ -76,9 +83,10 @@ function saveFavorites(favorites) {
   localStorage.setItem("favorites", JSON.stringify(favorites));
 }
 
+/* DISPONIBILITÀ */
 function isBookAvailable(book) {
-  const disponibilita = normalize(book.DISPONIBILITA);
-  const quantita = Number(book.QUANTITA || 0);
+  const disponibilita = normalize(getField(book, "DISPONIBILITA", "Disponibilita", "disponibilita"));
+  const quantita = Number(getField(book, "QUANTITA", "Quantita", "quantita") || 0);
 
   if (disponibilita.includes("non")) return false;
   if (disponibilita.includes("disponibile")) return true;
@@ -87,6 +95,7 @@ function isBookAvailable(book) {
   return false;
 }
 
+/* CARD LIBRO */
 function createBookCard(book) {
   const li = document.createElement("li");
   const available = isBookAvailable(book);
@@ -98,52 +107,36 @@ function createBookCard(book) {
   li.className = `book-item ${available ? "disponibile-border" : "non-disponibile-border"}`;
 
   li.innerHTML = `
-    <div class="book-content">
-      <button class="fav-btn" type="button">${isFav ? "❤️" : "♡"}</button>
+    <button class="fav-btn" type="button">${isFav ? "❤️" : "♡"}</button>
 
-      <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
+    <div class="book-main">
+      <img class="book-cover" src="${cover}" alt="Copertina libro" loading="lazy">
 
-      <p><strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}</p>
-      <p><strong>Editore:</strong> ${clean(book.EDITORE)}</p>
-      <p><strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}</p>
-      <p><strong>Genere:</strong> ${clean(book.GENERE)}</p>
-
-      <span class="availability ${available ? "disponibile" : "non-disponibile"}">
-        ${available ? "Disponibile" : "Non disponibile"}
-      </span>
-
-      <div class="book-details">
-        <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
-        <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
-        <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
-        <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
-        <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
-        <p><strong>Quantità:</strong> ${clean(book.QUANTITA)}</p>
-        <p><strong>Prestito:</strong> ${clean(book.PRESTITO)}</p>
-        <p><strong>Volume:</strong> ${clean(book.VOLUME)}</p>
-        <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
-        <p><strong>Abstract:</strong> ${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
+      <div class="book-info">
+        <h3>${clean(getTitle(book), "Titolo mancante")}</h3>
+        <p><strong>Autore:</strong> ${clean(getAuthor(book), "Autore non indicato")}</p>
+        <p><strong>Editore:</strong> ${clean(getField(book, "EDITORE", "Editore", "editore"))}</p>
+        <p><strong>Anno:</strong> ${clean(getField(book, "ANNO", "Anno", "anno"), "s.d.")}</p>
+        <p><strong>Genere:</strong> ${clean(getGenre(book))}</p>
+        <p class="${available ? "disponibile" : "non-disponibile"}">
+          ${available ? "Disponibile" : "Non disponibile"}
+        </p>
       </div>
     </div>
 
-    <img 
-      class="book-cover"
-      src="${cover}"
-      alt="Copertina di ${clean(book.TITOLO, "libro")}"
-    >
+    <div class="book-details">
+      <p><strong>ISBN:</strong> ${clean(getIsbn(book))}</p>
+      <p><strong>Luogo:</strong> ${clean(getField(book, "LUOGO", "Luogo", "luogo"))}</p>
+      <p><strong>Edizione:</strong> ${clean(getField(book, "EDIZIONE", "Edizione", "edizione"))}</p>
+      <p><strong>Pagine:</strong> ${clean(getField(book, "PAGINE", "Pagine", "pagine"))}</p>
+      <p><strong>Lingua:</strong> ${clean(getField(book, "LINGUA", "Lingua", "lingua"))}</p>
+      <p><strong>Quantità:</strong> ${clean(getField(book, "QUANTITA", "Quantita", "quantita"))}</p>
+      <p><strong>Prestito:</strong> ${clean(getField(book, "PRESTITO", "Prestito", "prestito"))}</p>
+      <p><strong>Volume:</strong> ${clean(getField(book, "VOLUME", "Volume", "volume"))}</p>
+      <p><strong>Collocazione:</strong> ${clean(getField(book, "COLLOCAZIONE", "Collocazione", "collocazione"))}</p>
+      <p><strong>Abstract:</strong> ${clean(getField(book, "ABSTRACT", "Abstract", "abstract"), "Abstract non disponibile.")}</p>
+    </div>
   `;
-
-  const coverImg = li.querySelector(".book-cover");
-
-  coverImg.addEventListener("error", function () {
-    getBookCoverFromGoogle(book, this);
-  });
-
-  coverImg.addEventListener("load", function () {
-    if (this.naturalWidth <= 1 || this.naturalHeight <= 1) {
-      getBookCoverFromGoogle(book, this);
-    }
-  });
 
   li.addEventListener("click", function (event) {
     if (event.target.classList.contains("fav-btn")) return;
@@ -172,6 +165,7 @@ function createBookCard(book) {
   return li;
 }
 
+/* RENDER LIBRI */
 function renderBooks(list) {
   resultsList.innerHTML = "";
   counter.textContent = `${list.length} libro/i trovato/i`;
@@ -186,12 +180,13 @@ function renderBooks(list) {
   });
 }
 
+/* GENERI */
 function populateGenres() {
   genreFilter.innerHTML = `<option value="">Tutti i generi</option>`;
 
   const genres = [...new Set(
     books
-      .map(book => clean(book.GENERE, ""))
+      .map(book => clean(getGenre(book), ""))
       .filter(genre => genre !== "")
   )].sort();
 
@@ -203,6 +198,7 @@ function populateGenres() {
   });
 }
 
+/* FILTRI */
 function applyFilters() {
   const query = normalize(input.value);
   const selectedGenre = genreFilter.value;
@@ -214,7 +210,7 @@ function applyFilters() {
     const available = isBookAvailable(book);
 
     const matchesSearch = searchableText.includes(query);
-    const matchesGenre = selectedGenre === "" || clean(book.GENERE, "") === selectedGenre;
+    const matchesGenre = selectedGenre === "" || clean(getGenre(book), "") === selectedGenre;
     const matchesAvailability =
       selectedAvailability === "" ||
       (selectedAvailability === "disponibile" && available) ||
@@ -224,20 +220,24 @@ function applyFilters() {
   });
 
   if (selectedSort === "titolo") {
-    filtered.sort((a, b) => normalize(a.TITOLO).localeCompare(normalize(b.TITOLO)));
+    filtered.sort((a, b) => normalize(getTitle(a)).localeCompare(normalize(getTitle(b))));
   }
 
   if (selectedSort === "autore") {
-    filtered.sort((a, b) => normalize(a.AUTORE).localeCompare(normalize(b.AUTORE)));
+    filtered.sort((a, b) => normalize(getAuthor(a)).localeCompare(normalize(getAuthor(b))));
   }
 
   if (selectedSort === "anno") {
-    filtered.sort((a, b) => Number(a.ANNO || 0) - Number(b.ANNO || 0));
+    filtered.sort((a, b) =>
+      Number(getField(a, "ANNO", "Anno", "anno") || 0) -
+      Number(getField(b, "ANNO", "Anno", "anno") || 0)
+    );
   }
 
   renderBooks(filtered);
 }
 
+/* PREFERITI */
 function renderFavorites() {
   favList.innerHTML = "";
 
@@ -245,47 +245,32 @@ function renderFavorites() {
   const favoriteBooks = books.filter(book => favorites.includes(getBookId(book)));
 
   if (favoriteBooks.length === 0) {
-    favList.innerHTML = `<li class="empty-message">Nessun libro preferito.</li>`;
+    favList.innerHTML = `<li>Nessun libro preferito.</li>`;
     return;
   }
 
   favoriteBooks.forEach(book => {
     const li = document.createElement("li");
     li.className = "book-item favorite-small";
-
     li.innerHTML = `
-      <div class="book-content">
-        <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
-        <p>${clean(book.AUTORE, "Autore non indicato")}</p>
-      </div>
-
-      <img 
-        class="book-cover small-cover"
-        src="${getBookCover(book)}"
-        alt="Copertina di ${clean(book.TITOLO, "libro")}"
-      >
+      <h3>${clean(getTitle(book), "Titolo mancante")}</h3>
+      <p>${clean(getAuthor(book), "Autore non indicato")}</p>
     `;
-
-    const coverImg = li.querySelector(".book-cover");
-
-    coverImg.addEventListener("error", function () {
-      getBookCoverFromGoogle(book, this);
-    });
-
     favList.appendChild(li);
   });
 }
 
+/* MENSOLA DEL PROF */
 function renderRecommendedBooks() {
   recommendedList.innerHTML = "";
 
   const recommendedBooks = books.filter(book => {
-    const value = normalize(book.CONSIGLIATO);
+    const value = normalize(getField(book, "CONSIGLIATO", "Consigliato", "consigliato"));
     return value === "si" || value === "sì" || value === "yes";
   });
 
   if (recommendedBooks.length === 0) {
-    recommendedList.innerHTML = `<li class="empty-message">Nessun libro consigliato al momento.</li>`;
+    recommendedList.innerHTML = `<li>Nessun libro consigliato al momento.</li>`;
     return;
   }
 
@@ -296,8 +281,9 @@ function renderRecommendedBooks() {
   });
 }
 
+/* CARICAMENTO */
 function loadBooks() {
-  resultsList.innerHTML = `<li class="empty-message">Caricamento catalogo...</li>`;
+  resultsList.innerHTML = `<li>Caricamento catalogo...</li>`;
 
   Papa.parse(sheetURL, {
     download: true,
@@ -305,7 +291,19 @@ function loadBooks() {
     skipEmptyLines: true,
 
     complete: function (results) {
-      books = results.data.filter(book => clean(book.TITOLO, "") !== "");
+      console.log("CSV caricato:", results);
+
+      if (!results.data || results.data.length === 0) {
+        resultsList.innerHTML = `<li class="empty-message">Il catalogo è vuoto o non leggibile.</li>`;
+        return;
+      }
+
+      books = results.data.filter(book => clean(getTitle(book), "") !== "");
+
+      if (books.length === 0) {
+        resultsList.innerHTML = `<li class="empty-message">Nessun libro caricato. Controlla la colonna TITOLO nel foglio Google.</li>`;
+        return;
+      }
 
       populateGenres();
       renderBooks(books);
@@ -327,6 +325,7 @@ function loadBooks() {
 
 loadBooks();
 
+/* TOGGLE MENSOLA */
 const mensolaButton = document.getElementById("toggle-mensola-prof");
 const mensolaSection = document.getElementById("mensola-prof");
 
