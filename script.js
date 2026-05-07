@@ -20,19 +20,48 @@ function normalize(value) {
   return clean(value, "").toLowerCase();
 }
 
+function getBookId(book) {
+  return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
+}
+
 function getBookCover(book) {
   const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
 
   if (isbn !== "") {
     const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
-    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg`;
+    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg?default=false`;
   }
 
   return "https://placehold.co/120x180?text=No+Cover";
 }
 
-function getBookId(book) {
-  return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
+async function getBookCoverFromGoogle(book, imgElement) {
+  const titolo = clean(book.TITOLO, "");
+  const autore = clean(book.AUTORE, "");
+
+  if (!titolo) {
+    imgElement.src = "https://placehold.co/120x180?text=No+Cover";
+    return;
+  }
+
+  const query = encodeURIComponent(`${titolo} ${autore}`);
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${query}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const thumbnail = data.items?.[0]?.volumeInfo?.imageLinks?.thumbnail;
+
+    if (thumbnail) {
+      imgElement.src = thumbnail.replace("http://", "https://");
+    } else {
+      imgElement.src = "https://placehold.co/120x180?text=No+Cover";
+    }
+  } catch (error) {
+    console.log("Copertina Google Books non trovata:", error);
+    imgElement.src = "https://placehold.co/120x180?text=No+Cover";
+  }
 }
 
 function getFavorites() {
@@ -69,13 +98,6 @@ function createBookCard(book) {
   li.className = `book-item ${available ? "disponibile-border" : "non-disponibile-border"}`;
 
   li.innerHTML = `
-    <img 
-      class="book-cover"
-      src="${cover}"
-      alt="Copertina di ${clean(book.TITOLO, "libro")}"
-      onerror="this.src='https://placehold.co/120x180?text=No+Cover'"
-    >
-
     <div class="book-content">
       <button class="fav-btn" type="button">${isFav ? "❤️" : "♡"}</button>
 
@@ -103,7 +125,25 @@ function createBookCard(book) {
         <p><strong>Abstract:</strong> ${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
       </div>
     </div>
+
+    <img 
+      class="book-cover"
+      src="${cover}"
+      alt="Copertina di ${clean(book.TITOLO, "libro")}"
+    >
   `;
+
+  const coverImg = li.querySelector(".book-cover");
+
+  coverImg.addEventListener("error", function () {
+    getBookCoverFromGoogle(book, this);
+  });
+
+  coverImg.addEventListener("load", function () {
+    if (this.naturalWidth <= 1 || this.naturalHeight <= 1) {
+      getBookCoverFromGoogle(book, this);
+    }
+  });
 
   li.addEventListener("click", function (event) {
     if (event.target.classList.contains("fav-btn")) return;
@@ -137,7 +177,7 @@ function renderBooks(list) {
   counter.textContent = `${list.length} libro/i trovato/i`;
 
   if (list.length === 0) {
-    resultsList.innerHTML = `<li>Nessun libro trovato.</li>`;
+    resultsList.innerHTML = `<li class="empty-message">Nessun libro trovato.</li>`;
     return;
   }
 
@@ -205,7 +245,7 @@ function renderFavorites() {
   const favoriteBooks = books.filter(book => favorites.includes(getBookId(book)));
 
   if (favoriteBooks.length === 0) {
-    favList.innerHTML = `<li>Nessun libro preferito.</li>`;
+    favList.innerHTML = `<li class="empty-message">Nessun libro preferito.</li>`;
     return;
   }
 
@@ -214,18 +254,23 @@ function renderFavorites() {
     li.className = "book-item favorite-small";
 
     li.innerHTML = `
-      <img 
-        class="book-cover small-cover"
-        src="${getBookCover(book)}"
-        alt="Copertina di ${clean(book.TITOLO, "libro")}"
-        onerror="this.src='https://placehold.co/80x120?text=No+Cover'"
-      >
-
       <div class="book-content">
         <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
         <p>${clean(book.AUTORE, "Autore non indicato")}</p>
       </div>
+
+      <img 
+        class="book-cover small-cover"
+        src="${getBookCover(book)}"
+        alt="Copertina di ${clean(book.TITOLO, "libro")}"
+      >
     `;
+
+    const coverImg = li.querySelector(".book-cover");
+
+    coverImg.addEventListener("error", function () {
+      getBookCoverFromGoogle(book, this);
+    });
 
     favList.appendChild(li);
   });
@@ -240,7 +285,7 @@ function renderRecommendedBooks() {
   });
 
   if (recommendedBooks.length === 0) {
-    recommendedList.innerHTML = `<li>Nessun libro consigliato al momento.</li>`;
+    recommendedList.innerHTML = `<li class="empty-message">Nessun libro consigliato al momento.</li>`;
     return;
   }
 
@@ -252,7 +297,7 @@ function renderRecommendedBooks() {
 }
 
 function loadBooks() {
-  resultsList.innerHTML = `<li>Caricamento catalogo...</li>`;
+  resultsList.innerHTML = `<li class="empty-message">Caricamento catalogo...</li>`;
 
   Papa.parse(sheetURL, {
     download: true,
@@ -275,7 +320,7 @@ function loadBooks() {
 
     error: function (error) {
       console.error("Errore nel caricamento del CSV:", error);
-      resultsList.innerHTML = `<li>Errore nel caricamento del catalogo.</li>`;
+      resultsList.innerHTML = `<li class="empty-message">Errore nel caricamento del catalogo.</li>`;
     }
   });
 }
@@ -289,4 +334,4 @@ if (mensolaButton && mensolaSection) {
   mensolaButton.addEventListener("click", function () {
     mensolaSection.classList.toggle("open");
   });
-} 
+}
