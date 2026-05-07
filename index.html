@@ -1,29 +1,47 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>BiblioLeo - Catalogo online</title>
+
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <header class="hero">
     <div class="hero-content">
-      <div class="logo-badge">📚</div>
+
+      <div class="logo-badge">
+        📚
+      </div>
+
       <h1>BiblioLeo</h1>
-      <p>Il catalogo digitale della biblioteca scolastica</p>
+
+      <p>
+        Il catalogo digitale della biblioteca scolastica
+      </p>
+
     </div>
   </header>
 
   <main class="container">
 
     <section class="search-panel">
+
       <h2>Cerca un libro</h2>
 
-      <input id="search" type="text" placeholder="Cerca per titolo, autore, genere, ISBN..." />
+      <input
+        id="search"
+        type="text"
+        placeholder="Cerca per titolo, autore, genere, ISBN..."
+      />
 
       <div class="filters">
+
         <select id="genre-filter">
           <option value="">Tutti i generi</option>
         </select>
@@ -40,28 +58,43 @@
           <option value="autore">Autore A-Z</option>
           <option value="anno">Anno crescente</option>
         </select>
+
       </div>
 
       <p id="counter" class="counter"></p>
+
     </section>
 
     <section class="catalog-section">
+
       <div class="section-title">
+
         <h2>Catalogo libri</h2>
-        <p>Clicca su una scheda per vedere i dettagli.</p>
+
+        <p>
+          Clicca su una scheda per vedere i dettagli del libro.
+        </p>
+
       </div>
 
       <ul id="results"></ul>
+
     </section>
 
     <section class="favorites-section">
+
       <h2>❤️ Libri preferiti</h2>
+
       <ul id="favorites-list"></ul>
+
     </section>
 
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <script src="script.js"></script>
+
 </body>
+
 </html>
