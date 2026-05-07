@@ -29,6 +29,23 @@ function getBookCover(book) {
 
   return "https://placehold.co/120x180?text=No+Cover";
 }
+const cover = getBookCover(book);
+
+card.innerHTML = `
+  <img 
+    class="book-cover" 
+    src="${cover}" 
+    alt="Copertina di ${book.titolo}"
+    onerror="this.src='https://placehold.co/120x180?text=No+Cover'"
+  >
+
+  <div class="book-info">
+    <h3>${book.titolo}</h3>
+    <p>${book.autore}</p>
+    <p>${book.genere}</p>
+    <p>${book.anno}</p>
+  </div>
+`;
 function getBookId(book) {
   return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
 }
