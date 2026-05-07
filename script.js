@@ -112,12 +112,11 @@ function createBookCard(book) {
 
   li.className = `book-item ${available ? "disponibile-border" : "non-disponibile-border"}`;
 
-  li.innerHTML = `
-    <button class="fav-btn" type="button">${isFav ? "❤️" : "♡"}</button>
+ li.innerHTML = `
+  <button class="fav-btn" type="button">${isFav ? "❤️" : "♡"}</button>
 
-    <div class="book-main">
-      <img class="book-cover" src="${cover}" alt="Copertina libro" loading="lazy">
-
+  <div class="book-card-layout">
+    <div class="book-content">
       <div class="book-info">
         <h3>${clean(getTitle(book), "Titolo mancante")}</h3>
         <p><strong>Autore:</strong> ${clean(getAuthor(book), "Autore non indicato")}</p>
@@ -128,7 +127,26 @@ function createBookCard(book) {
           ${available ? "Disponibile" : "Non disponibile"}
         </p>
       </div>
+
+      <div class="book-details">
+        <p><strong>ISBN:</strong> ${clean(getIsbn(book))}</p>
+        <p><strong>Luogo:</strong> ${clean(getField(book, "LUOGO", "Luogo", "luogo"))}</p>
+        <p><strong>Edizione:</strong> ${clean(getField(book, "EDIZIONE", "Edizione", "edizione"))}</p>
+        <p><strong>Pagine:</strong> ${clean(getField(book, "PAGINE", "Pagine", "pagine"))}</p>
+        <p><strong>Lingua:</strong> ${clean(getField(book, "LINGUA", "Lingua", "lingua"))}</p>
+        <p><strong>Quantità:</strong> ${clean(getField(book, "QUANTITA", "Quantita", "quantita"))}</p>
+        <p><strong>Prestito:</strong> ${clean(getField(book, "PRESTITO", "Prestito", "prestito"))}</p>
+        <p><strong>Volume:</strong> ${clean(getField(book, "VOLUME", "Volume", "volume"))}</p>
+        <p><strong>Collocazione:</strong> ${clean(getField(book, "COLLOCAZIONE", "Collocazione", "collocazione"))}</p>
+        <p class="abstract"><strong>Abstract:</strong> ${clean(getField(book, "ABSTRACT", "Abstract", "abstract"), "Abstract non disponibile.")}</p>
+      </div>
     </div>
+
+    <div class="book-cover-box">
+      <img class="book-cover" src="${cover}" alt="Copertina libro" loading="lazy">
+    </div>
+  </div>
+`;
 
     <div class="book-details">
       <p><strong>ISBN:</strong> ${clean(getIsbn(book))}</p>
