@@ -19,33 +19,18 @@ function clean(value, fallback = "Non indicato") {
 function normalize(value) {
   return clean(value, "").toLowerCase();
 }
-function getBookCover(book) {
-  const isbn = book.isbn || book.ISBN || book.Isbn || "";
 
-  if (isbn.trim() !== "") {
+function getBookCover(book) {
+  const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
+
+  if (isbn !== "") {
     const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
     return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg`;
   }
 
   return "https://placehold.co/120x180?text=No+Cover";
 }
-const cover = getBookCover(book);
 
-card.innerHTML = `
-  <img 
-    class="book-cover" 
-    src="${cover}" 
-    alt="Copertina di ${book.titolo}"
-    onerror="this.src='https://placehold.co/120x180?text=No+Cover'"
-  >
-
-  <div class="book-info">
-    <h3>${book.titolo}</h3>
-    <p>${book.autore}</p>
-    <p>${book.genere}</p>
-    <p>${book.anno}</p>
-  </div>
-`;
 function getBookId(book) {
   return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
 }
@@ -75,41 +60,48 @@ function isBookAvailable(book) {
 
 function createBookCard(book) {
   const li = document.createElement("li");
-
   const available = isBookAvailable(book);
   const bookId = getBookId(book);
   const favorites = getFavorites();
   const isFav = favorites.includes(bookId);
+  const cover = getBookCover(book);
 
   li.className = `book-item ${available ? "disponibile-border" : "non-disponibile-border"}`;
 
   li.innerHTML = `
-    <button class="fav-btn" type="button">${isFav ? "❤️" : "🤍"}</button>
+    <img 
+      class="book-cover"
+      src="${cover}"
+      alt="Copertina di ${clean(book.TITOLO, "libro")}"
+      onerror="this.src='https://placehold.co/120x180?text=No+Cover'"
+    >
 
-    <div class="book-title">${clean(book.TITOLO, "Titolo mancante")}</div>
+    <div class="book-content">
+      <button class="fav-btn" type="button">${isFav ? "❤️" : "♡"}</button>
 
-    <p class="book-meta"><strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}</p>
-    <p class="book-meta"><strong>Editore:</strong> ${clean(book.EDITORE)}</p>
-    <p class="book-meta"><strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}</p>
-    <p class="book-meta"><strong>Genere:</strong> ${clean(book.GENERE)}</p>
+      <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
 
-    <p class="book-meta">
-      <span class="badge ${available ? "disponibile" : "non-disponibile"}">
+      <p><strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}</p>
+      <p><strong>Editore:</strong> ${clean(book.EDITORE)}</p>
+      <p><strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}</p>
+      <p><strong>Genere:</strong> ${clean(book.GENERE)}</p>
+
+      <span class="availability ${available ? "disponibile" : "non-disponibile"}">
         ${available ? "Disponibile" : "Non disponibile"}
       </span>
-    </p>
 
-    <div class="book-details">
-      <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
-      <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
-      <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
-      <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
-      <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
-      <p><strong>Quantità:</strong> ${clean(book.QUANTITA)}</p>
-      <p><strong>Prestito:</strong> ${clean(book.PRESTITO)}</p>
-      <p><strong>Volume:</strong> ${clean(book.VOLUME)}</p>
-      <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
-      <p><strong>Abstract:</strong> ${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
+      <div class="book-details">
+        <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
+        <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
+        <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
+        <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
+        <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
+        <p><strong>Quantità:</strong> ${clean(book.QUANTITA)}</p>
+        <p><strong>Prestito:</strong> ${clean(book.PRESTITO)}</p>
+        <p><strong>Volume:</strong> ${clean(book.VOLUME)}</p>
+        <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
+        <p><strong>Abstract:</strong> ${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
+      </div>
     </div>
   `;
 
@@ -127,7 +119,7 @@ function createBookCard(book) {
 
     if (favorites.includes(bookId)) {
       favorites = favorites.filter(id => id !== bookId);
-      favButton.textContent = "🤍";
+      favButton.textContent = "♡";
     } else {
       favorites.push(bookId);
       favButton.textContent = "❤️";
@@ -145,7 +137,7 @@ function renderBooks(list) {
   counter.textContent = `${list.length} libro/i trovato/i`;
 
   if (list.length === 0) {
-    resultsList.innerHTML = `<li class="empty-message">Nessun libro trovato.</li>`;
+    resultsList.innerHTML = `<li>Nessun libro trovato.</li>`;
     return;
   }
 
@@ -213,20 +205,32 @@ function renderFavorites() {
   const favoriteBooks = books.filter(book => favorites.includes(getBookId(book)));
 
   if (favoriteBooks.length === 0) {
-    favList.innerHTML = `<li class="empty-message">Nessun libro preferito.</li>`;
+    favList.innerHTML = `<li>Nessun libro preferito.</li>`;
     return;
   }
 
   favoriteBooks.forEach(book => {
     const li = document.createElement("li");
-    li.className = "book-item";
+    li.className = "book-item favorite-small";
+
     li.innerHTML = `
-      <div class="book-title">${clean(book.TITOLO, "Titolo mancante")}</div>
-      <p>${clean(book.AUTORE, "Autore non indicato")}</p>
+      <img 
+        class="book-cover small-cover"
+        src="${getBookCover(book)}"
+        alt="Copertina di ${clean(book.TITOLO, "libro")}"
+        onerror="this.src='https://placehold.co/80x120?text=No+Cover'"
+      >
+
+      <div class="book-content">
+        <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
+        <p>${clean(book.AUTORE, "Autore non indicato")}</p>
+      </div>
     `;
+
     favList.appendChild(li);
   });
 }
+
 function renderRecommendedBooks() {
   recommendedList.innerHTML = "";
 
@@ -236,11 +240,7 @@ function renderRecommendedBooks() {
   });
 
   if (recommendedBooks.length === 0) {
-    recommendedList.innerHTML = `
-      <li class="empty-message">
-        Nessun libro consigliato al momento.
-      </li>
-    `;
+    recommendedList.innerHTML = `<li>Nessun libro consigliato al momento.</li>`;
     return;
   }
 
@@ -250,8 +250,9 @@ function renderRecommendedBooks() {
     recommendedList.appendChild(card);
   });
 }
+
 function loadBooks() {
-  resultsList.innerHTML = `<li class="empty-message">Caricamento catalogo...</li>`;
+  resultsList.innerHTML = `<li>Caricamento catalogo...</li>`;
 
   Papa.parse(sheetURL, {
     download: true,
@@ -263,8 +264,8 @@ function loadBooks() {
 
       populateGenres();
       renderBooks(books);
-renderRecommendedBooks();
-renderFavorites();
+      renderRecommendedBooks();
+      renderFavorites();
 
       input.addEventListener("input", applyFilters);
       genreFilter.addEventListener("change", applyFilters);
@@ -274,12 +275,13 @@ renderFavorites();
 
     error: function (error) {
       console.error("Errore nel caricamento del CSV:", error);
-      resultsList.innerHTML = `<li class="error-message">Errore nel caricamento del catalogo.</li>`;
+      resultsList.innerHTML = `<li>Errore nel caricamento del catalogo.</li>`;
     }
   });
 }
 
 loadBooks();
+
 const mensolaButton = document.getElementById("toggle-mensola-prof");
 const mensolaSection = document.getElementById("mensola-prof");
 
@@ -287,4 +289,4 @@ if (mensolaButton && mensolaSection) {
   mensolaButton.addEventListener("click", function () {
     mensolaSection.classList.toggle("open");
   });
-}
+} 
