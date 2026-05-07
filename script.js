@@ -24,11 +24,16 @@ function getBookId(book) {
   return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
 }
 
-function getBookCover(book) {
-  return "https://placehold.co/140x210?text=Caricamento";
-}
-
 async function getBookCoverFromGoogle(book, imgElement) {
+  const bookId = getBookId(book);
+  const cacheKey = `cover-${bookId}`;
+  const cachedCover = localStorage.getItem(cacheKey);
+
+  if (cachedCover) {
+    imgElement.src = cachedCover;
+    return;
+  }
+
   const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
   const titolo = clean(book.TITOLO, "");
   const autore = clean(book.AUTORE, "");
@@ -53,7 +58,9 @@ async function getBookCoverFromGoogle(book, imgElement) {
       data.items?.[0]?.volumeInfo?.imageLinks?.smallThumbnail;
 
     if (image) {
-      imgElement.src = image.replace("http://", "https://");
+      const secureImage = image.replace("http://", "https://");
+      localStorage.setItem(cacheKey, secureImage);
+      imgElement.src = secureImage;
     } else {
       imgElement.src = "https://placehold.co/140x210?text=No+Cover";
     }
