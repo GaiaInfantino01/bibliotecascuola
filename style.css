@@ -273,12 +273,35 @@ body {
 
 @media (max-width: 760px) {
   .hero {
-    min-height: 250px;
-  }
+  min-height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 
-  .hero h1 {
-    font-size: 2.7rem;
-  }
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.62), rgba(15, 23, 42, 0.72)),
+    url("https://i.imgur.com/FPxZ91O.png");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  color: white;
+  position: relative;
+}
+.hero-content {
+  padding: 30px;
+  backdrop-filter: blur(2px);
+}
+
+.hero h1 {
+  text-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+
+.hero p {
+  text-shadow: 0 4px 10px rgba(0,0,0,0.45);
+}
 
   .hero p {
     font-size: 1rem;
