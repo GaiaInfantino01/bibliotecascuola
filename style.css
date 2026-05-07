@@ -538,3 +538,67 @@ body {
     text-align: center;
   }
 }
+/* MENSOLA DEL PROF CLICCABILE */
+
+.recommended-header {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.recommended-title-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.recommended-title {
+  color: #92400e;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.recommended-subtitle {
+  margin-top: 6px;
+  color: #7c4a13;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.recommended-arrow {
+  font-size: 1.4rem;
+  color: #92400e;
+  transition: transform 0.25s ease;
+}
+
+.recommended-content {
+  display: none;
+  animation: aperturaMensola 0.25s ease;
+}
+
+.recommended-section.open .recommended-content {
+  display: block;
+}
+
+.recommended-section.open .recommended-arrow {
+  transform: rotate(180deg);
+}
+
+#recommended-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 24px;
+}
+
+@keyframes aperturaMensola {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
