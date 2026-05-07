@@ -4,483 +4,579 @@ const input = document.getElementById("search");
 const resultsList = document.getElementById("results");
 const favList = document.getElementById("favorites-list");
 const recommendedList = document.getElementById("recommended-list");
+
 const genreFilter = document.getElementById("genre-filter");
 const availabilityFilter = document.getElementById("availability-filter");
 const sortFilter = document.getElementById("sort-filter");
+
 const counter = document.getElementById("counter");
 
 let books = [];
 
+/* ---------------- UTILITIES ---------------- */
+
 function clean(value, fallback = "Non indicato") {
-  const text = value ? String(value).trim() : "";
-  return text || fallback;
+if (value === undefined || value === null) return fallback;
+
+const text = String(value).trim();
+
+return text !== "" ? text : fallback;
 }
 
 function normalize(value) {
-  return clean(value, "").toLowerCase();
+return clean(value, "").toLowerCase();
 }
 
 function getBookId(book) {
-  return clean(book.ISBN, "") || `${clean(book.TITOLO, "")}-${clean(book.AUTORE, "")}`;
+return (
+clean(book.ISBN, "") ||
+clean(book.TITOLO, "") + "-" + clean(book.AUTORE, "")
+);
 }
 
-/* COPERTINE */
+/* ---------------- COPERTINE ---------------- */
 
 function getBookCover(book) {
 
-  // 1. COPERTINA MANUALE DAL GOOGLE SHEET
-  const manualCover = clean(
-    book.COPERTINA || book.Copertina || book.copertina,
-    ""
-  );
+const manualCover =
+book.COPERTINA ||
+book.Copertina ||
+book.copertina ||
+"";
 
-  if (manualCover !== "") {
-    return manualCover;
-  }
-
-  // 2. FALLBACK AUTOMATICO DA ISBN
-  const isbn = clean(book.ISBN || book.isbn || book.Isbn, "");
-
-  if (isbn !== "") {
-    const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
-    return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
-  }
-
-  // 3. PLACEHOLDER
-  return "https://placehold.co/140x210?text=No+Cover";
+if (manualCover.trim() !== "") {
+return manualCover;
 }
 
-/* PREFERITI */
+const isbn =
+book.ISBN ||
+book.isbn ||
+"";
+
+if (isbn.trim() !== "") {
+
+```
+const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
+
+return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`;
+```
+
+}
+
+return "https://placehold.co/140x210?text=No+Cover";
+}
+
+/* ---------------- PREFERITI ---------------- */
 
 function getFavorites() {
-  try {
-    return JSON.parse(localStorage.getItem("favorites")) || [];
-  } catch {
-    return [];
-  }
+
+try {
+
+```
+return JSON.parse(
+  localStorage.getItem("favorites")
+) || [];
+```
+
+} catch {
+
+```
+return [];
+```
+
+}
 }
 
 function saveFavorites(favorites) {
-  localStorage.setItem("favorites", JSON.stringify(favorites));
+
+localStorage.setItem(
+"favorites",
+JSON.stringify(favorites)
+);
 }
 
-/* DISPONIBILITÀ */
+/* ---------------- DISPONIBILITÀ ---------------- */
 
 function isBookAvailable(book) {
-  const disponibilita = normalize(book.DISPONIBILITA);
-  const quantita = Number(book.QUANTITA || 0);
 
-  if (disponibilita.includes("non")) return false;
-  if (disponibilita.includes("disponibile")) return true;
-  if (quantita > 0) return true;
+const disponibilita =
+normalize(book.DISPONIBILITA);
 
-  return false;
+if (disponibilita.includes("non")) {
+return false;
 }
 
-/* CARD LIBRO */
+return true;
+}
+
+/* ---------------- CARD LIBRO ---------------- */
 
 function createBookCard(book) {
 
-  const li = document.createElement("li");
+const li = document.createElement("li");
 
-  const available = isBookAvailable(book);
+const available =
+isBookAvailable(book);
 
-  const bookId = getBookId(book);
+const bookId =
+getBookId(book);
 
-  const favorites = getFavorites();
+const favorites =
+getFavorites();
 
-  const isFav = favorites.includes(bookId);
+const isFav =
+favorites.includes(bookId);
 
-  const cover = getBookCover(book);
+li.className =
+"book-item " +
+(available
+? "disponibile-border"
+: "non-disponibile-border");
 
-  li.className = `
-    book-item
-    ${available ? "disponibile-border" : "non-disponibile-border"}
-  `;
+li.innerHTML = `
 
-  li.innerHTML = `
+```
+<div class="book-content">
 
-    <div class="book-content">
+  <button class="fav-btn">
+    ${isFav ? "❤️" : "♡"}
+  </button>
 
-      <button class="fav-btn" type="button">
-        ${isFav ? "❤️" : "♡"}
-      </button>
+  <h3>
+    ${clean(book.TITOLO, "Titolo mancante")}
+  </h3>
 
-      <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
+  <p>
+    <strong>Autore:</strong>
+    ${clean(book.AUTORE)}
+  </p>
 
-      <p><strong>Autore:</strong> ${clean(book.AUTORE, "Autore non indicato")}</p>
+  <p>
+    <strong>Editore:</strong>
+    ${clean(book.EDITORE)}
+  </p>
 
-      <p><strong>Editore:</strong> ${clean(book.EDITORE)}</p>
+  <p>
+    <strong>Anno:</strong>
+    ${clean(book.ANNO)}
+  </p>
 
-      <p><strong>Anno:</strong> ${clean(book.ANNO, "s.d.")}</p>
+  <p>
+    <strong>Genere:</strong>
+    ${clean(book.GENERE)}
+  </p>
 
-      <p><strong>Genere:</strong> ${clean(book.GENERE)}</p>
+  <span class="availability ${available ? "disponibile" : "non-disponibile"}">
+    ${available ? "Disponibile" : "Non disponibile"}
+  </span>
 
-      <span class="availability ${available ? "disponibile" : "non-disponibile"}">
-        ${available ? "Disponibile" : "Non disponibile"}
-      </span>
+  <div class="book-details">
 
-      <div class="book-details">
+    <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
 
-        <p><strong>ISBN:</strong> ${clean(book.ISBN)}</p>
+    <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
 
-        <p><strong>Luogo:</strong> ${clean(book.LUOGO)}</p>
+    <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
 
-        <p><strong>Edizione:</strong> ${clean(book.EDIZIONE)}</p>
+    <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
 
-        <p><strong>Pagine:</strong> ${clean(book.PAGINE)}</p>
+    <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
 
-        <p><strong>Lingua:</strong> ${clean(book.LINGUA)}</p>
+    <p>
+      <strong>Abstract:</strong>
+      ${clean(book.ABSTRACT, "Non disponibile")}
+    </p>
 
-        <p><strong>Quantità:</strong> ${clean(book.QUANTITA)}</p>
+  </div>
 
-        <p><strong>Prestito:</strong> ${clean(book.PRESTITO)}</p>
+</div>
 
-        <p><strong>Volume:</strong> ${clean(book.VOLUME)}</p>
+<img
+  class="book-cover"
+  src="${getBookCover(book)}"
+  alt="Copertina"
+  onerror="this.src='https://placehold.co/140x210?text=No+Cover'"
+>
+```
 
-        <p><strong>Collocazione:</strong> ${clean(book.COLLOCAZIONE)}</p>
+`;
 
-        <p><strong>Abstract:</strong> ${clean(book.ABSTRACT, "Abstract non disponibile.")}</p>
+/* DETTAGLI */
 
-      </div>
+li.addEventListener("click", function (event) {
 
-    </div>
+```
+if (
+  event.target.classList.contains("fav-btn")
+) return;
 
-    <img
-      class="book-cover"
-      src="${cover}"
-      alt="Copertina di ${clean(book.TITOLO, "libro")}"
-      onerror="this.src='https://placehold.co/140x210?text=No+Cover'"
-    >
+li.classList.toggle("open");
+```
 
-  `;
-
-  /* APERTURA DETTAGLI */
-
-  li.addEventListener("click", function (event) {
-
-    if (event.target.classList.contains("fav-btn")) return;
-
-    li.classList.toggle("open");
-
-  });
-
-  /* PREFERITI */
-
-  const favButton = li.querySelector(".fav-btn");
-
-  favButton.addEventListener("click", function (event) {
-
-    event.stopPropagation();
-
-    let favorites = getFavorites();
-
-    if (favorites.includes(bookId)) {
-
-      favorites = favorites.filter(id => id !== bookId);
-
-      favButton.textContent = "♡";
-
-    } else {
-
-      favorites.push(bookId);
-
-      favButton.textContent = "❤️";
-
-    }
-
-    saveFavorites(favorites);
-
-    renderFavorites();
-
-  });
-
-  return li;
-}
-
-/* RENDER LIBRI */
-
-function renderBooks(list) {
-
-  resultsList.innerHTML = "";
-
-  counter.textContent = `${list.length} libro/i trovato/i`;
-
-  if (list.length === 0) {
-
-    resultsList.innerHTML = `
-      <li class="empty-message">
-        Nessun libro trovato.
-      </li>
-    `;
-
-    return;
-  }
-
-  list.forEach(book => {
-
-    resultsList.appendChild(createBookCard(book));
-
-  });
-}
-
-/* GENERI */
-
-function populateGenres() {
-
-  genreFilter.innerHTML = `
-    <option value="">Tutti i generi</option>
-  `;
-
-  const genres = [...new Set(
-
-    books
-      .map(book => clean(book.GENERE, ""))
-      .filter(genre => genre !== "")
-
-  )].sort();
-
-  genres.forEach(genre => {
-
-    const option = document.createElement("option");
-
-    option.value = genre;
-
-    option.textContent = genre;
-
-    genreFilter.appendChild(option);
-
-  });
-}
-
-/* FILTRI */
-
-function applyFilters() {
-
-  const query = normalize(input.value);
-
-  const selectedGenre = genreFilter.value;
-
-  const selectedAvailability = availabilityFilter.value;
-
-  const selectedSort = sortFilter.value;
-
-  let filtered = books.filter(book => {
-
-    const searchableText =
-      Object.values(book).join(" ").toLowerCase();
-
-    const available = isBookAvailable(book);
-
-    const matchesSearch =
-      searchableText.includes(query);
-
-    const matchesGenre =
-      selectedGenre === "" ||
-      clean(book.GENERE, "") === selectedGenre;
-
-    const matchesAvailability =
-      selectedAvailability === "" ||
-      (selectedAvailability === "disponibile" && available) ||
-      (selectedAvailability === "non disponibile" && !available);
-
-    return (
-      matchesSearch &&
-      matchesGenre &&
-      matchesAvailability
-    );
-  });
-
-  if (selectedSort === "titolo") {
-
-    filtered.sort((a, b) =>
-      normalize(a.TITOLO)
-        .localeCompare(normalize(b.TITOLO))
-    );
-  }
-
-  if (selectedSort === "autore") {
-
-    filtered.sort((a, b) =>
-      normalize(a.AUTORE)
-        .localeCompare(normalize(b.AUTORE))
-    );
-  }
-
-  if (selectedSort === "anno") {
-
-    filtered.sort((a, b) =>
-      Number(a.ANNO || 0) - Number(b.ANNO || 0)
-    );
-  }
-
-  renderBooks(filtered);
-}
+});
 
 /* PREFERITI */
 
-function renderFavorites() {
+const favButton =
+li.querySelector(".fav-btn");
 
-  favList.innerHTML = "";
+favButton.addEventListener("click", function (event) {
 
-  const favorites = getFavorites();
+```
+event.stopPropagation();
 
-  const favoriteBooks = books.filter(book =>
-    favorites.includes(getBookId(book))
-  );
+let favorites =
+  getFavorites();
 
-  if (favoriteBooks.length === 0) {
+if (favorites.includes(bookId)) {
 
-    favList.innerHTML = `
-      <li class="empty-message">
-        Nessun libro preferito.
-      </li>
-    `;
+  favorites =
+    favorites.filter(id => id !== bookId);
 
-    return;
-  }
+  favButton.textContent = "♡";
 
-  favoriteBooks.forEach(book => {
+} else {
 
-    const li = document.createElement("li");
+  favorites.push(bookId);
 
-    li.className = "book-item favorite-small";
-
-    li.innerHTML = `
-
-      <div class="book-content">
-
-        <h3>${clean(book.TITOLO, "Titolo mancante")}</h3>
-
-        <p>${clean(book.AUTORE, "Autore non indicato")}</p>
-
-      </div>
-
-      <img
-        class="book-cover small-cover"
-        src="${getBookCover(book)}"
-        alt="Copertina di ${clean(book.TITOLO, "libro")}"
-        onerror="this.src='https://placehold.co/80x120?text=No+Cover'"
-      >
-
-    `;
-
-    favList.appendChild(li);
-
-  });
+  favButton.textContent = "❤️";
 }
 
-/* MENSOLA DEL PROF */
+saveFavorites(favorites);
+
+renderFavorites();
+```
+
+});
+
+return li;
+}
+
+/* ---------------- RENDER LIBRI ---------------- */
+
+function renderBooks(list) {
+
+resultsList.innerHTML = "";
+
+counter.textContent =
+list.length + " libro/i trovato/i";
+
+if (list.length === 0) {
+
+```
+resultsList.innerHTML =
+  "<li>Nessun libro trovato.</li>";
+
+return;
+```
+
+}
+
+list.forEach(book => {
+
+```
+resultsList.appendChild(
+  createBookCard(book)
+);
+```
+
+});
+}
+
+/* ---------------- GENERI ---------------- */
+
+function populateGenres() {
+
+genreFilter.innerHTML =
+'<option value="">Tutti i generi</option>';
+
+const genres = [...new Set(
+
+```
+books.map(book =>
+  clean(book.GENERE, "")
+)
+```
+
+)].filter(Boolean).sort();
+
+genres.forEach(genre => {
+
+```
+const option =
+  document.createElement("option");
+
+option.value = genre;
+
+option.textContent = genre;
+
+genreFilter.appendChild(option);
+```
+
+});
+}
+
+/* ---------------- FILTRI ---------------- */
+
+function applyFilters() {
+
+const query =
+normalize(input.value);
+
+const selectedGenre =
+genreFilter.value;
+
+const selectedAvailability =
+availabilityFilter.value;
+
+const selectedSort =
+sortFilter.value;
+
+let filtered = books.filter(book => {
+
+```
+const searchableText =
+  Object.values(book)
+    .join(" ")
+    .toLowerCase();
+
+const available =
+  isBookAvailable(book);
+
+const matchesSearch =
+  searchableText.includes(query);
+
+const matchesGenre =
+  selectedGenre === "" ||
+  clean(book.GENERE, "") === selectedGenre;
+
+const matchesAvailability =
+  selectedAvailability === "" ||
+  (selectedAvailability === "disponibile" && available) ||
+  (selectedAvailability === "non disponibile" && !available);
+
+return (
+  matchesSearch &&
+  matchesGenre &&
+  matchesAvailability
+);
+```
+
+});
+
+if (selectedSort === "titolo") {
+
+```
+filtered.sort((a, b) =>
+  normalize(a.TITOLO)
+    .localeCompare(normalize(b.TITOLO))
+);
+```
+
+}
+
+if (selectedSort === "autore") {
+
+```
+filtered.sort((a, b) =>
+  normalize(a.AUTORE)
+    .localeCompare(normalize(b.AUTORE))
+);
+```
+
+}
+
+renderBooks(filtered);
+}
+
+/* ---------------- PREFERITI ---------------- */
+
+function renderFavorites() {
+
+favList.innerHTML = "";
+
+const favorites =
+getFavorites();
+
+const favoriteBooks =
+books.filter(book =>
+favorites.includes(getBookId(book))
+);
+
+if (favoriteBooks.length === 0) {
+
+```
+favList.innerHTML =
+  "<li>Nessun preferito.</li>";
+
+return;
+```
+
+}
+
+favoriteBooks.forEach(book => {
+
+```
+const li =
+  document.createElement("li");
+
+li.className =
+  "book-item favorite-small";
+
+li.innerHTML = `
+
+  <div class="book-content">
+
+    <h3>
+      ${clean(book.TITOLO)}
+    </h3>
+
+    <p>
+      ${clean(book.AUTORE)}
+    </p>
+
+  </div>
+
+  <img
+    class="book-cover small-cover"
+    src="${getBookCover(book)}"
+    alt="Copertina"
+    onerror="this.src='https://placehold.co/80x120?text=No+Cover'"
+  >
+`;
+
+favList.appendChild(li);
+```
+
+});
+}
+
+/* ---------------- MENSOLA DEL PROF ---------------- */
 
 function renderRecommendedBooks() {
 
-  recommendedList.innerHTML = "";
+recommendedList.innerHTML = "";
 
-  const recommendedBooks = books.filter(book => {
+const recommendedBooks =
+books.filter(book => {
 
-    const value = normalize(book.CONSIGLIATO);
+```
+  const value =
+    normalize(book.CONSIGLIATO);
 
-    return (
-      value === "si" ||
-      value === "sì" ||
-      value === "yes"
-    );
-  });
+  return (
+    value === "si" ||
+    value === "sì" ||
+    value === "yes"
+  );
+});
+```
 
-  if (recommendedBooks.length === 0) {
+if (recommendedBooks.length === 0) {
 
-    recommendedList.innerHTML = `
-      <li class="empty-message">
-        Nessun libro consigliato al momento.
-      </li>
-    `;
+```
+recommendedList.innerHTML =
+  "<li>Nessun libro consigliato.</li>";
 
-    return;
-  }
+return;
+```
 
-  recommendedBooks.forEach(book => {
-
-    const card = createBookCard(book);
-
-    card.classList.add("recommended-card");
-
-    recommendedList.appendChild(card);
-
-  });
 }
 
-/* CARICAMENTO */
+recommendedBooks.forEach(book => {
+
+```
+recommendedList.appendChild(
+  createBookCard(book)
+);
+```
+
+});
+}
+
+/* ---------------- CARICAMENTO CSV ---------------- */
 
 function loadBooks() {
 
-  resultsList.innerHTML = `
-    <li class="empty-message">
-      Caricamento catalogo...
-    </li>
-  `;
+Papa.parse(sheetURL, {
 
-  Papa.parse(sheetURL, {
+```
+download: true,
 
-    download: true,
+header: true,
 
-    header: true,
+skipEmptyLines: true,
 
-    skipEmptyLines: true,
+complete: function(results) {
 
-    complete: function (results) {
+  books = results.data;
 
-      books = results.data.filter(book =>
-        clean(book.TITOLO, "") !== ""
-      );
+  populateGenres();
 
-      populateGenres();
+  renderBooks(books);
 
-      renderBooks(books);
+  renderFavorites();
 
-      renderRecommendedBooks();
+  renderRecommendedBooks();
 
-      renderFavorites();
+  input.addEventListener(
+    "input",
+    applyFilters
+  );
 
-      input.addEventListener("input", applyFilters);
+  genreFilter.addEventListener(
+    "change",
+    applyFilters
+  );
 
-      genreFilter.addEventListener("change", applyFilters);
+  availabilityFilter.addEventListener(
+    "change",
+    applyFilters
+  );
 
-      availabilityFilter.addEventListener("change", applyFilters);
+  sortFilter.addEventListener(
+    "change",
+    applyFilters
+  );
+},
 
-      sortFilter.addEventListener("change", applyFilters);
-    },
+error: function(error) {
 
-    error: function (error) {
+  console.error(error);
 
-      console.error(
-        "Errore nel caricamento del CSV:",
-        error
-      );
+  resultsList.innerHTML =
+    "<li>Errore nel caricamento del catalogo.</li>";
+}
+```
 
-      resultsList.innerHTML = `
-        <li class="empty-message">
-          Errore nel caricamento del catalogo.
-        </li>
-      `;
-    }
-  });
+});
 }
 
 loadBooks();
 
-/* TOGGLE MENSOLA */
+/* ---------------- MENSOLA TOGGLE ---------------- */
 
 const mensolaButton =
-  document.getElementById("toggle-mensola-prof");
+document.getElementById(
+"toggle-mensola-prof"
+);
 
 const mensolaSection =
-  document.getElementById("mensola-prof");
+document.getElementById(
+"mensola-prof"
+);
 
 if (mensolaButton && mensolaSection) {
 
-  mensolaButton.addEventListener("click", function () {
+mensolaButton.addEventListener(
+"click",
+function () {
 
-    mensolaSection.classList.toggle("open");
+```
+  mensolaSection.classList.toggle("open");
 
-  });
+}
+```
+
+);
 }
