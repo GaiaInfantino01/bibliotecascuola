@@ -8,103 +8,119 @@
 </head>
 
 <body>
+
 <header class="hero">
   <div class="hero-content">
-
     <div class="big-logo">
       <span class="biblio">Biblio</span><span class="leo">Leo</span>
     </div>
 
-    <h1>IIS Leonardo-Giarre</h1>
-
+    <h1>IIS Leonardo - Giarre</h1>
     <p>Il catalogo online della biblioteca scolastica</p>
 
-   <nav class="hero-nav">
-  <a href="#catalogo" class="hero-btn">Catalogo</a>
-  <a href="#mensola-prof" class="hero-btn">La mensola del prof</a>
-  <a href="#preferiti" class="hero-btn">Preferiti</a>
-</nav>
+    <nav class="hero-nav">
+      <a href="#catalogo" class="hero-btn">
+        <span>📚</span>
+        Catalogo
+      </a>
 
+      <a href="#mensola-prof" class="hero-btn">
+        <span>⭐</span>
+        Mensola del prof
+      </a>
+
+      <a href="#preferiti" class="hero-btn">
+        <span>❤️</span>
+        Preferiti
+      </a>
+    </nav>
   </div>
 </header>
 
-  <main class="container">
-    <nav class="quick-menu">
+<main class="container">
 
-    </nav>
+  <section id="mensola-prof" class="mensola-prof">
+    <button id="toggle-mensola-prof" class="recommended-header">
+      <span class="recommended-icon">⭐</span>
 
-<section id="mensola-prof" class="mensola-prof">
-      <button id="toggle-mensola-prof" class="recommended-header">
-        <span class="recommended-icon">⭐</span>
-
-        <span class="recommended-title-box">
-          <span class="recommended-title">La mensola del prof</span>
-          <span class="recommended-subtitle">Clicca per leggere la descrizione e vedere i libri consigliati</span>
+      <span class="recommended-title-box">
+        <span class="recommended-title">La mensola del prof</span>
+        <span class="recommended-subtitle">
+          Clicca per leggere la descrizione e vedere i libri consigliati
         </span>
+      </span>
 
-        <span class="recommended-arrow">▼</span>
-      </button>
+      <span class="recommended-arrow">▼</span>
+    </button>
 
-      <div class="recommended-content">
-        <div class="recommended-description">
-          <p>
-            “La mensola del prof” è uno spazio dedicato ai libri consigliati dai docenti della scuola.
-            Ogni mese gli insegnanti propongono una selezione di letture scelte per il loro valore
-            culturale, educativo e umano.
-          </p>
+    <div class="recommended-content">
+      <div class="recommended-description">
+        <p>
+          “La mensola del prof” è uno spazio dedicato ai libri consigliati dai docenti della scuola.
+          Ogni mese gli insegnanti propongono una selezione di letture scelte per il loro valore
+          culturale, educativo e umano.
+        </p>
 
-          <p>
-            Questa sezione nasce con l’obiettivo di accompagnare studenti e lettori alla scoperta
-            di nuovi autori, temi e storie.
-          </p>
-        </div>
-
-        <ul id="recommended-list"></ul>
-      </div>
-    </section>
-
- <section id="catalogo" class="catalogo-section">
-      <div class="section-title">
-        <h2>Cerca un libro</h2>
-        <p>Consulta il catalogo della biblioteca e scopri i libri disponibili.</p>
+        <p>
+          Questa sezione nasce con l’obiettivo di accompagnare studenti e lettori alla scoperta
+          di nuovi autori, temi e storie.
+        </p>
       </div>
 
-      <input id="search" type="text" placeholder="Cerca per titolo, autore, ISBN...">
+      <ul id="recommended-list" class="book-list"></ul>
+    </div>
+  </section>
 
-      <div class="filters">
-        <select id="genre-filter">
-          <option value="">Tutti i generi</option>
-        </select>
+  <section id="catalogo" class="catalogo-section">
+    <div class="section-title">
+      <h2>Cerca un libro</h2>
+      <p>Consulta il catalogo della biblioteca e scopri i libri disponibili.</p>
+    </div>
 
-        <select id="availability-filter">
-          <option value="">Tutti</option>
-          <option value="disponibile">Disponibili</option>
-          <option value="non disponibile">Non disponibili</option>
-        </select>
+    <input id="search" type="text" placeholder="Cerca per titolo, autore, ISBN...">
 
-        <select id="sort-filter">
-          <option value="">Ordine originale</option>
-          <option value="titolo">Titolo A-Z</option>
-          <option value="autore">Autore A-Z</option>
-          <option value="anno">Anno crescente</option>
-        </select>
-      </div>
+    <div class="filters">
+      <select id="genre-filter">
+        <option value="">Tutti i generi</option>
+      </select>
 
-      <p id="counter" class="counter"></p>
+      <select id="availability-filter">
+        <option value="">Tutti</option>
+        <option value="disponibile">Disponibili</option>
+        <option value="non disponibile">Non disponibili</option>
+      </select>
 
+      <select id="sort-filter">
+        <option value="">Ordine originale</option>
+        <option value="titolo">Titolo A-Z</option>
+        <option value="autore">Autore A-Z</option>
+        <option value="anno">Anno crescente</option>
+      </select>
+    </div>
+
+    <p id="counter" class="counter"></p>
+
+    <div class="section-title small">
       <h2>Catalogo libri</h2>
-      <p>Clicca su una scheda per vedere i dettagli del libro.</p>
+      <p>Clicca su “Mostra dettagli” per leggere tutte le informazioni del libro.</p>
+    </div>
 
-      <ul id="results"></ul>
-    </section>
+    <ul id="results" class="book-list"></ul>
+  </section>
 
-    <section id="preferiti" class="preferiti-section">
+  <section id="preferiti" class="preferiti-section">
+    <div class="section-title small">
       <h2>❤️ Libri preferiti</h2>
-      <ul id="favorites-list"></ul>
-    </section>
-  </main>
+      <p>Qui trovi i libri salvati tra i preferiti.</p>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="script.js"></script>
+    <ul id="favorites-list" class="book-list"></ul>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="script.js"></script>
+
 </body>
-</html> 
+</html>
