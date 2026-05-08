@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BiblioLeo - Catalogo online</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <header class="hero"></header>
+  <header class="hero">
+    <div class="hero-overlay">
+      <h1>BiblioLeo</h1>
+      <p>Il catalogo online della biblioteca scolastica</p>
+    </div>
+  </header>
 
   <main class="container">
     <nav class="quick-menu">
@@ -18,7 +23,7 @@
     </nav>
 
     <section id="mensola-prof" class="recommended-section">
-      <button id="toggle-mensola-prof" class="recommended-header" type="button">
+      <button id="toggle-mensola-prof" class="recommended-header">
         <span class="recommended-icon">⭐</span>
 
         <span class="recommended-title-box">
@@ -29,19 +34,17 @@
         <span class="recommended-arrow">▼</span>
       </button>
 
-      <div id="recommended-content" class="recommended-content">
+      <div class="recommended-content">
         <div class="recommended-description">
           <p>
             “La mensola del prof” è uno spazio dedicato ai libri consigliati dai docenti della scuola.
             Ogni mese gli insegnanti propongono una selezione di letture scelte per il loro valore
-            culturale, educativo e umano: romanzi, saggi, classici e opere contemporanee capaci di
-            suscitare curiosità, emozioni e riflessioni.
+            culturale, educativo e umano.
           </p>
 
           <p>
-            Questa sezione nasce con l’obiettivo di accompagnare studenti e lettori alla scoperta di
-            nuovi autori, temi e storie, trasformando la lettura in un’occasione di crescita, confronto
-            e condivisione.
+            Questa sezione nasce con l’obiettivo di accompagnare studenti e lettori alla scoperta
+            di nuovi autori, temi e storie.
           </p>
         </div>
 
@@ -49,14 +52,13 @@
       </div>
     </section>
 
-    <section id="preferiti" class="favorites-section">
-      <h2>Cerca un libro</h2>
+    <section id="catalogo">
+      <div class="section-title">
+        <h2>Cerca un libro</h2>
+        <p>Consulta il catalogo della biblioteca e scopri i libri disponibili.</p>
+      </div>
 
-      <input
-        id="search"
-        type="text"
-        placeholder="Cerca per titolo, autore, genere, ISBN..."
-      />
+      <input id="search" type="text" placeholder="Cerca per titolo, autore, ISBN...">
 
       <div class="filters">
         <select id="genre-filter">
@@ -78,18 +80,14 @@
       </div>
 
       <p id="counter" class="counter"></p>
-    </section>
 
-    <section id="catalogo" class="catalog-section">
-      <div class="section-title">
-        <h2>Catalogo libri</h2>
-        <p>Clicca su una scheda per vedere i dettagli del libro.</p>
-      </div>
+      <h2>Catalogo libri</h2>
+      <p>Clicca su una scheda per vedere i dettagli del libro.</p>
 
       <ul id="results"></ul>
     </section>
 
-    <section class="favorites-section">
+    <section id="preferiti" class="favorites-section">
       <h2>❤️ Libri preferiti</h2>
       <ul id="favorites-list"></ul>
     </section>
@@ -98,4 +96,4 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
 </body>
-</html>
+</html> 
