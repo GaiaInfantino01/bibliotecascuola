@@ -889,4 +889,238 @@ button:hover,
   .preferiti-section {
     padding: 24px;
   }
+   /* PULSANTI HEADER */
+
+.hero nav,
+header nav,
+.hero-nav {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hero nav a,
+header nav a,
+.hero-nav a,
+.hero-btn {
+  display: inline-block;
+  text-decoration: none;
+  background: #fff4e6;
+  color: #5c2a13;
+  border: 2px solid #d9a441;
+  padding: 12px 26px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  transition: 0.25s ease;
+}
+
+.hero nav a:hover,
+header nav a:hover,
+.hero-nav a:hover,
+.hero-btn:hover {
+  background: #d9a441;
+  color: #fff4e6;
+  transform: translateY(-3px);
+}
+
+/* ELIMINA ASPETTO DA LINK VIOLA */
+header a:visited,
+.hero a:visited {
+  color: #5c2a13;
+}
+
+/* CONTENITORE CATALOGO */
+
+#catalogo,
+.catalogo-section {
+  max-width: 1150px;
+  margin: 45px auto;
+  padding: 0 24px;
+}
+
+/* LISTA LIBRI */
+
+#lista-libri,
+.lista-libri,
+.catalogo-libri,
+.books-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* SCHEDA SINGOLO LIBRO */
+
+.libro,
+.book-card,
+.card-libro {
+  background: #fffaf2;
+  border: 1px solid rgba(92, 42, 19, 0.18);
+  border-radius: 26px;
+  padding: 28px;
+  box-shadow: 0 12px 32px rgba(70, 35, 15, 0.13);
+  display: grid;
+  grid-template-columns: 1fr 170px;
+  gap: 28px;
+  align-items: start;
+  position: relative;
+}
+
+/* TITOLO LIBRO */
+
+.libro h3,
+.book-card h3,
+.card-libro h3 {
+  grid-column: 1 / 2;
+  margin: 0 0 18px;
+  color: #4b2112;
+  font-size: 1.6rem;
+  line-height: 1.15;
+  font-weight: 900;
+  border-bottom: 2px solid #d9a441;
+  padding-bottom: 10px;
+}
+
+/* INFORMAZIONI A SINISTRA */
+
+.libro p,
+.book-card p,
+.card-libro p {
+  margin: 8px 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: #3a2318;
+}
+
+.libro strong,
+.book-card strong,
+.card-libro strong {
+  color: #4b2112;
+  font-weight: 900;
+}
+
+/* COPERTINA A DESTRA */
+
+.libro img,
+.book-card img,
+.card-libro img {
+  grid-column: 2 / 3;
+  grid-row: 1 / span 20;
+  width: 160px;
+  max-height: 245px;
+  object-fit: cover;
+  justify-self: end;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+  background: #eee;
+}
+
+/* DISPONIBILITÀ */
+
+.disponibile,
+.disponibilita,
+.status,
+.stato-libro {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #e9f6df;
+  color: #315f16;
+  font-weight: 900;
+  border: 1px solid #9ac879;
+}
+
+/* SE NEL TUO HTML C'È SCRITTO SOLO "Disponibile" COME TESTO */
+.libro p:has(strong),
+.book-card p:has(strong),
+.card-libro p:has(strong) {
+  max-width: 700px;
+}
+
+/* MENSOLA DEL PROF */
+
+#mensola-prof,
+.mensola-prof {
+  max-width: 1150px;
+  margin: 35px auto;
+  padding: 30px;
+  background: #fffaf2;
+  border-radius: 26px;
+  border: 1px solid rgba(92, 42, 19, 0.18);
+  box-shadow: 0 12px 32px rgba(70, 35, 15, 0.13);
+}
+
+#mensola-prof summary,
+.mensola-prof summary,
+#mensola-prof h2,
+.mensola-prof h2 {
+  font-size: 1.7rem;
+  color: #4b2112;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+#mensola-prof p,
+.mensola-prof p {
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+/* TOGLIE I PUNTINI DELLE LISTE SE SPUNTANO VICINO AI LIBRI */
+
+#catalogo ul,
+#catalogo li,
+.lista-libri,
+.lista-libri li,
+#lista-libri,
+#lista-libri li {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+/* MOBILE */
+
+@media (max-width: 760px) {
+  .hero nav,
+  header nav,
+  .hero-nav {
+    gap: 10px;
+  }
+
+  .hero nav a,
+  header nav a,
+  .hero-nav a,
+  .hero-btn {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
+
+  .libro,
+  .book-card,
+  .card-libro {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .libro h3,
+  .book-card h3,
+  .card-libro h3 {
+    grid-column: 1;
+  }
+
+  .libro img,
+  .book-card img,
+  .card-libro img {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: center;
+    margin-top: 12px;
+  }
+}
 }
