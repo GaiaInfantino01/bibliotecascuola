@@ -9,11 +9,23 @@
 
 <body>
   <header class="hero">
-    <div class="hero-overlay">
-      <h1>BiblioLeo</h1>
-      <p>Il catalogo online della biblioteca scolastica</p>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <div class="logo-css">
+      <span class="logo-biblio">Biblio</span><span class="logo-leo">Leo</span>
     </div>
-  </header>
+
+    <h1>BiblioLeo</h1>
+    <p>Il catalogo online della biblioteca scolastica</p>
+
+    <nav class="menu">
+      <button onclick="showSection('catalogo')">Catalogo</button>
+      <button onclick="showSection('mensola')">La mensola del prof</button>
+      <button onclick="showSection('preferiti')">Preferiti</button>
+    </nav>
+  </div>
+</header>
 
   <main class="container">
     <nav class="quick-menu">
