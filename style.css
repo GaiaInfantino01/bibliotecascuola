@@ -533,3 +533,8 @@ body::after{
     width:94%;
   }
 }
+.hero img,
+.hero .logo,
+.hero .header-logo {
+  display: none !important;
+}
