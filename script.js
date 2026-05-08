@@ -1,4 +1,5 @@
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwD-BejuTnjtnrQjm8nq45yUMnPlpqdVCNtN966RAOOQdRhDyBCJMcfjaHdBJDV2UmKNcCt_goyH5S/pub?output=csv";
+const sheetURL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwD-BejuTnjtnrQjm8nq45yUMnPlpqdVCNtN966RAOOQdRhDyBCJMcfjaHdBJDV2UmKNcCt_goyH5S/pub?output=csv";
 
 const input = document.getElementById("search");
 const resultsList = document.getElementById("results");
@@ -18,15 +19,6 @@ function clean(value, fallback = "Non indicato") {
 
 function normalize(value) {
   return clean(value, "").toLowerCase();
-}
-
-function escapeHTML(value) {
-  return clean(value, "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 function getField(book, ...names) {
@@ -59,10 +51,13 @@ function getIsbn(book) {
 }
 
 function getBookId(book) {
-  return clean(getIsbn(book), "") || `${clean(getTitle(book), "")}-${clean(getAuthor(book), "")}`;
+  return (
+    clean(getIsbn(book), "") ||
+    `${clean(getTitle(book), "")}-${clean(getAuthor(book), "")}`
+  );
 }
 
-/* COPERTINE */
+/* COPERTINA */
 function getBookCover(book) {
   let manualCover = clean(
     getField(
@@ -70,9 +65,7 @@ function getBookCover(book) {
       "COPERTINA",
       "Copertina",
       "copertina",
-      "URL COPERTINA",
-      "Url copertina",
-      "url copertina"
+      "URL COPERTINA"
     ),
     ""
   );
@@ -127,7 +120,7 @@ function isBookAvailable(book) {
   return false;
 }
 
-/* CARD LIBRO */
+/* CREA CARD */
 function createBookCard(book) {
   const li = document.createElement("li");
 
@@ -137,55 +130,100 @@ function createBookCard(book) {
   const isFav = favorites.includes(bookId);
   const cover = getBookCover(book);
 
-  li.className = `book-item ${available ? "disponibile-border" : "non-disponibile-border"}`;
+  li.className = `book-item ${
+    available ? "disponibile-border" : "non-disponibile-border"
+  }`;
 
   li.innerHTML = `
-    <button class="fav-btn" type="button" aria-label="Aggiungi ai preferiti">
+    <button class="fav-btn" type="button">
       ${isFav ? "❤️" : "♡"}
     </button>
 
     <div class="book-card-layout">
+
       <div class="book-content">
+
         <div class="book-info">
-          <h3>${escapeHTML(clean(getTitle(book), "Titolo mancante"))}</h3>
+          <h3>${clean(getTitle(book), "Titolo mancante")}</h3>
 
-          <p><strong>Autore:</strong> ${escapeHTML(clean(getAuthor(book), "Autore non indicato"))}</p>
-          <p><strong>Editore:</strong> ${escapeHTML(clean(getField(book, "EDITORE", "Editore", "editore")))}</p>
-          <p><strong>Anno:</strong> ${escapeHTML(clean(getField(book, "ANNO", "Anno", "anno"), "s.d."))}</p>
-          <p><strong>Genere:</strong> ${escapeHTML(clean(getGenre(book)))}</p>
+          <p><strong>Autore:</strong> ${clean(
+            getAuthor(book),
+            "Autore non indicato"
+          )}</p>
 
-          <p class="${available ? "disponibile" : "non-disponibile"}">
+          <p><strong>Editore:</strong> ${clean(
+            getField(book, "EDITORE", "Editore", "editore")
+          )}</p>
+
+          <p><strong>Anno:</strong> ${clean(
+            getField(book, "ANNO", "Anno", "anno"),
+            "s.d."
+          )}</p>
+
+          <p><strong>Genere:</strong> ${clean(getGenre(book))}</p>
+
+          <p class="${
+            available ? "disponibile" : "non-disponibile"
+          }">
             ${available ? "Disponibile" : "Non disponibile"}
           </p>
         </div>
 
         <div class="book-details">
-          <p><strong>ISBN:</strong> ${escapeHTML(clean(getIsbn(book)))}</p>
-          <p><strong>Quantità:</strong> ${escapeHTML(clean(getField(book, "QUANTITA", "Quantita", "quantita")))}</p>
+          <p><strong>ISBN:</strong> ${clean(getIsbn(book))}</p>
 
-          <p><strong>Luogo:</strong> ${escapeHTML(clean(getField(book, "LUOGO", "Luogo", "luogo")))}</p>
-          <p><strong>Prestito:</strong> ${escapeHTML(clean(getField(book, "PRESTITO", "Prestito", "prestito")))}</p>
+          <p><strong>Quantità:</strong> ${clean(
+            getField(book, "QUANTITA", "Quantita", "quantita")
+          )}</p>
 
-          <p><strong>Edizione:</strong> ${escapeHTML(clean(getField(book, "EDIZIONE", "Edizione", "edizione")))}</p>
-          <p><strong>Volume:</strong> ${escapeHTML(clean(getField(book, "VOLUME", "Volume", "volume")))}</p>
+          <p><strong>Luogo:</strong> ${clean(
+            getField(book, "LUOGO", "Luogo", "luogo")
+          )}</p>
 
-          <p><strong>Pagine:</strong> ${escapeHTML(clean(getField(book, "PAGINE", "Pagine", "pagine")))}</p>
-          <p><strong>Collocazione:</strong> ${escapeHTML(clean(getField(book, "COLLOCAZIONE", "Collocazione", "collocazione")))}</p>
+          <p><strong>Prestito:</strong> ${clean(
+            getField(book, "PRESTITO", "Prestito", "prestito")
+          )}</p>
 
-          <p><strong>Lingua:</strong> ${escapeHTML(clean(getField(book, "LINGUA", "Lingua", "lingua")))}</p>
-          <p class="abstract"><strong>Abstract:</strong> ${escapeHTML(clean(getField(book, "ABSTRACT", "Abstract", "abstract"), "Abstract non disponibile."))}</p>
+          <p><strong>Edizione:</strong> ${clean(
+            getField(book, "EDIZIONE", "Edizione", "edizione")
+          )}</p>
+
+          <p><strong>Volume:</strong> ${clean(
+            getField(book, "VOLUME", "Volume", "volume")
+          )}</p>
+
+          <p><strong>Pagine:</strong> ${clean(
+            getField(book, "PAGINE", "Pagine", "pagine")
+          )}</p>
+
+          <p><strong>Collocazione:</strong> ${clean(
+            getField(book, "COLLOCAZIONE", "Collocazione", "collocazione")
+          )}</p>
+
+          <p><strong>Lingua:</strong> ${clean(
+            getField(book, "LINGUA", "Lingua", "lingua")
+          )}</p>
+
+          <p class="abstract">
+            <strong>Abstract:</strong>
+            ${clean(
+              getField(book, "ABSTRACT", "Abstract", "abstract"),
+              "Abstract non disponibile."
+            )}
+          </p>
         </div>
       </div>
 
       <div class="book-cover-box">
         <img
           class="book-cover"
-          src="${escapeHTML(cover)}"
-          alt="Copertina di ${escapeHTML(clean(getTitle(book), "libro"))}"
+          src="${cover}"
+          alt="Copertina libro"
           loading="lazy"
-          onerror="this.onerror=null; this.src='https://placehold.co/140x210?text=No+Cover';"
+          onerror="this.src='https://placehold.co/140x210?text=No+Cover'"
         >
       </div>
+
     </div>
   `;
 
@@ -197,7 +235,7 @@ function createBookCard(book) {
     let favorites = getFavorites();
 
     if (favorites.includes(bookId)) {
-      favorites = favorites.filter(id => id !== bookId);
+      favorites = favorites.filter((id) => id !== bookId);
       favButton.textContent = "♡";
     } else {
       favorites.push(bookId);
@@ -220,26 +258,30 @@ function renderBooks(list) {
   }
 
   if (list.length === 0) {
-    resultsList.innerHTML = `<li class="empty-message">Nessun libro trovato.</li>`;
+    resultsList.innerHTML =
+      `<li class="empty-message">Nessun libro trovato.</li>`;
     return;
   }
 
-  list.forEach(book => {
+  list.forEach((book) => {
     resultsList.appendChild(createBookCard(book));
   });
 }
 
 /* GENERI */
 function populateGenres() {
-  genreFilter.innerHTML = `<option value="">Tutti i generi</option>`;
+  genreFilter.innerHTML =
+    `<option value="">Tutti i generi</option>`;
 
-  const genres = [...new Set(
-    books
-      .map(book => clean(getGenre(book), ""))
-      .filter(genre => genre !== "")
-  )].sort();
+  const genres = [
+    ...new Set(
+      books
+        .map((book) => clean(getGenre(book), ""))
+        .filter((genre) => genre !== "")
+    ),
+  ].sort();
 
-  genres.forEach(genre => {
+  genres.forEach((genre) => {
     const option = document.createElement("option");
     option.value = genre;
     option.textContent = genre;
@@ -254,34 +296,57 @@ function applyFilters() {
   const selectedAvailability = availabilityFilter.value;
   const selectedSort = sortFilter.value;
 
-  let filtered = books.filter(book => {
-    const searchableText = Object.values(book).join(" ").toLowerCase();
+  let filtered = books.filter((book) => {
+    const searchableText = Object.values(book)
+      .join(" ")
+      .toLowerCase();
+
     const available = isBookAvailable(book);
 
-    const matchesSearch = searchableText.includes(query);
+    const matchesSearch =
+      searchableText.includes(query);
+
     const matchesGenre =
-      selectedGenre === "" || clean(getGenre(book), "") === selectedGenre;
+      selectedGenre === "" ||
+      clean(getGenre(book), "") === selectedGenre;
 
     const matchesAvailability =
       selectedAvailability === "" ||
       (selectedAvailability === "disponibile" && available) ||
       (selectedAvailability === "non disponibile" && !available);
 
-    return matchesSearch && matchesGenre && matchesAvailability;
+    return (
+      matchesSearch &&
+      matchesGenre &&
+      matchesAvailability
+    );
   });
 
   if (selectedSort === "titolo") {
-    filtered.sort((a, b) => normalize(getTitle(a)).localeCompare(normalize(getTitle(b))));
+    filtered.sort((a, b) =>
+      normalize(getTitle(a)).localeCompare(
+        normalize(getTitle(b))
+      )
+    );
   }
 
   if (selectedSort === "autore") {
-    filtered.sort((a, b) => normalize(getAuthor(a)).localeCompare(normalize(getAuthor(b))));
+    filtered.sort((a, b) =>
+      normalize(getAuthor(a)).localeCompare(
+        normalize(getAuthor(b))
+      )
+    );
   }
 
   if (selectedSort === "anno") {
-    filtered.sort((a, b) =>
-      Number(getField(a, "ANNO", "Anno", "anno") || 0) -
-      Number(getField(b, "ANNO", "Anno", "anno") || 0)
+    filtered.sort(
+      (a, b) =>
+        Number(
+          getField(a, "ANNO", "Anno", "anno") || 0
+        ) -
+        Number(
+          getField(b, "ANNO", "Anno", "anno") || 0
+        )
     );
   }
 
@@ -293,20 +358,25 @@ function renderFavorites() {
   favList.innerHTML = "";
 
   const favorites = getFavorites();
-  const favoriteBooks = books.filter(book => favorites.includes(getBookId(book)));
+
+  const favoriteBooks = books.filter((book) =>
+    favorites.includes(getBookId(book))
+  );
 
   if (favoriteBooks.length === 0) {
-    favList.innerHTML = `<li class="empty-message">Nessun libro preferito.</li>`;
+    favList.innerHTML =
+      `<li class="empty-message">Nessun libro preferito.</li>`;
     return;
   }
 
-  favoriteBooks.forEach(book => {
+  favoriteBooks.forEach((book) => {
     const li = document.createElement("li");
+
     li.className = "favorite-small";
 
     li.innerHTML = `
-      <h3>${escapeHTML(clean(getTitle(book), "Titolo mancante"))}</h3>
-      <p>${escapeHTML(clean(getAuthor(book), "Autore non indicato"))}</p>
+      <h3>${clean(getTitle(book), "Titolo mancante")}</h3>
+      <p>${clean(getAuthor(book), "Autore non indicato")}</p>
     `;
 
     favList.appendChild(li);
@@ -317,26 +387,39 @@ function renderFavorites() {
 function renderRecommendedBooks() {
   recommendedList.innerHTML = "";
 
-  const recommendedBooks = books.filter(book => {
-    const value = normalize(getField(book, "CONSIGLIATO", "Consigliato", "consigliato"));
-    return value === "si" || value === "sì" || value === "yes";
+  const recommendedBooks = books.filter((book) => {
+    const value = normalize(
+      getField(
+        book,
+        "CONSIGLIATO",
+        "Consigliato",
+        "consigliato"
+      )
+    );
+
+    return (
+      value === "si" ||
+      value === "sì" ||
+      value === "yes"
+    );
   });
 
   if (recommendedBooks.length === 0) {
-    recommendedList.innerHTML = `<li class="empty-message">Nessun libro consigliato al momento.</li>`;
+    recommendedList.innerHTML =
+      `<li class="empty-message">Nessun libro consigliato al momento.</li>`;
     return;
   }
 
-  recommendedBooks.forEach(book => {
+  recommendedBooks.forEach((book) => {
     const card = createBookCard(book);
-    card.classList.add("recommended-card");
     recommendedList.appendChild(card);
   });
 }
 
 /* CARICAMENTO */
 function loadBooks() {
-  resultsList.innerHTML = `<li class="empty-message">Caricamento catalogo...</li>`;
+  resultsList.innerHTML =
+    `<li class="empty-message">Caricamento catalogo...</li>`;
 
   Papa.parse(sheetURL, {
     download: true,
@@ -344,19 +427,11 @@ function loadBooks() {
     skipEmptyLines: true,
 
     complete: function (results) {
-      console.log("CSV caricato:", results);
+      console.log(results);
 
-      if (!results.data || results.data.length === 0) {
-        resultsList.innerHTML = `<li class="empty-message">Il catalogo è vuoto o non leggibile.</li>`;
-        return;
-      }
-
-      books = results.data.filter(book => clean(getTitle(book), "") !== "");
-
-      if (books.length === 0) {
-        resultsList.innerHTML = `<li class="empty-message">Nessun libro caricato. Controlla la colonna TITOLO nel foglio Google.</li>`;
-        return;
-      }
+      books = results.data.filter(
+        (book) => clean(getTitle(book), "") !== ""
+      );
 
       populateGenres();
       renderBooks(books);
@@ -370,17 +445,22 @@ function loadBooks() {
     },
 
     error: function (error) {
-      console.error("Errore nel caricamento del CSV:", error);
-      resultsList.innerHTML = `<li class="empty-message">Errore nel caricamento del catalogo.</li>`;
-    }
+      console.error(error);
+
+      resultsList.innerHTML =
+        `<li class="empty-message">Errore nel caricamento del catalogo.</li>`;
+    },
   });
 }
 
 loadBooks();
 
 /* TOGGLE MENSOLA */
-const mensolaButton = document.getElementById("toggle-mensola-prof");
-const mensolaSection = document.getElementById("mensola-prof");
+const mensolaButton =
+  document.getElementById("toggle-mensola-prof");
+
+const mensolaSection =
+  document.getElementById("mensola-prof");
 
 if (mensolaButton && mensolaSection) {
   mensolaButton.addEventListener("click", function () {
