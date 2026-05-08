@@ -2,44 +2,49 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
   color: #2f241d;
   background:
-    linear-gradient(rgba(255, 247, 237, 0.88), rgba(255, 247, 237, 0.96)),
+    linear-gradient(rgba(255, 247, 237, 0.86), rgba(255, 247, 237, 0.96)),
     url("https://i.imgur.com/FPxZ91O.png");
   background-size: cover;
   background-position: center top;
   background-attachment: fixed;
 }
 
-/* HERO */
-
 .hero {
-  min-height: 300px;
+  min-height: 310px;
   background:
-    linear-gradient(rgba(92, 41, 12, 0.55), rgba(120, 53, 15, 0.35)),
+    linear-gradient(rgba(80, 35, 12, 0.55), rgba(80, 35, 12, 0.35)),
     url("https://i.imgur.com/FPxZ91O.png");
   background-size: cover;
   background-position: center;
   border-bottom-left-radius: 45px;
   border-bottom-right-radius: 45px;
-  box-shadow: 0 10px 30px rgba(69, 26, 3, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  box-shadow: 0 12px 30px rgba(69, 26, 3, 0.28);
 }
 
-/* CONTENITORE */
+.hero h1 {
+  font-size: 4rem;
+  margin: 0;
+}
+
+.hero p {
+  font-size: 1.3rem;
+  margin-top: 10px;
+}
 
 .container {
   width: min(1120px, 92%);
-  margin: -120px auto 60px;
+  margin: -80px auto 60px;
 }
-
-/* MENU */
 
 .quick-menu {
   display: flex;
@@ -52,45 +57,26 @@ body {
 .quick-menu a {
   text-decoration: none;
   color: #6b2f0f;
-  background: rgba(255, 250, 243, 0.94);
+  background: rgba(255, 250, 243, 0.96);
   padding: 13px 20px;
   border-radius: 999px;
   font-weight: bold;
   border: 1px solid #f4c28d;
   box-shadow: 0 8px 18px rgba(69, 26, 3, 0.12);
-  transition: 0.2s ease;
 }
-
-.quick-menu a:hover {
-  background: #fed7aa;
-  transform: translateY(-2px);
-}
-
-/* SEZIONI */
 
 section {
-  background: rgba(255, 250, 243, 0.96);
-  border: 1px solid rgba(244, 194, 141, 0.75);
+  background: rgba(255, 250, 243, 0.97);
+  border: 1px solid rgba(244, 194, 141, 0.8);
   border-radius: 28px;
   padding: 30px;
   margin-bottom: 32px;
   box-shadow: 0 14px 34px rgba(69, 26, 3, 0.14);
-  backdrop-filter: blur(6px);
 }
 
-.section-title h2,
-.favorites-section h2 {
-  margin: 0 0 10px;
+h2 {
   color: #7c2d12;
-  font-size: 2rem;
 }
-
-.section-title p {
-  color: #6f461e;
-  line-height: 1.6;
-}
-
-/* RICERCA */
 
 #search {
   width: 100%;
@@ -99,14 +85,6 @@ section {
   border-radius: 18px;
   font-size: 1rem;
   background: white;
-  color: #2f241d;
-  outline: none;
-  box-shadow: inset 0 2px 5px rgba(69, 26, 3, 0.05);
-}
-
-#search:focus {
-  border-color: #d97706;
-  box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.15);
 }
 
 .filters {
@@ -123,8 +101,6 @@ section {
   border: 2px solid #f4c28d;
   border-radius: 16px;
   background: white;
-  color: #2f241d;
-  font-size: 0.95rem;
 }
 
 .counter {
@@ -132,8 +108,6 @@ section {
   color: #7c2d12;
   font-weight: bold;
 }
-
-/* LISTE */
 
 #results,
 #favorites-list,
@@ -148,10 +122,7 @@ section {
   padding: 20px;
   border-radius: 18px;
   color: #7c4a13;
-  list-style: none;
 }
-
-/* CARD LIBRI */
 
 .book-item {
   position: relative;
@@ -162,12 +133,6 @@ section {
   margin-bottom: 24px;
   box-shadow: 0 8px 22px rgba(69, 26, 3, 0.11);
   border: 1px solid rgba(244, 194, 141, 0.75);
-  transition: 0.25s ease;
-}
-
-.book-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 30px rgba(69, 26, 3, 0.17);
 }
 
 .disponibile-border {
@@ -189,7 +154,6 @@ section {
   margin: 0 0 10px;
   color: #16813a;
   font-size: 1.65rem;
-  line-height: 1.15;
 }
 
 .book-info p,
@@ -214,7 +178,6 @@ section {
 .book-cover-box {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
 }
 
 .book-cover {
@@ -242,11 +205,6 @@ section {
   box-shadow: 0 4px 12px rgba(69, 26, 3, 0.12);
 }
 
-.fav-btn:hover {
-  background: #ffe4e6;
-  transform: scale(1.06);
-}
-
 .disponibile {
   color: #16813a;
   font-weight: 700;
@@ -257,11 +215,8 @@ section {
   font-weight: 700;
 }
 
-/* MENSOLA PROF */
-
 .recommended-section {
   background: rgba(255, 247, 237, 0.97);
-  border: 2px solid #f4c28d;
 }
 
 .recommended-header {
@@ -294,13 +249,11 @@ section {
   display: block;
   margin-top: 6px;
   color: #7c4a13;
-  font-weight: 600;
 }
 
 .recommended-arrow {
   font-size: 1.4rem;
   color: #92400e;
-  transition: transform 0.25s ease;
 }
 
 .recommended-content {
@@ -312,10 +265,6 @@ section {
   display: block;
 }
 
-.recommended-section.open .recommended-arrow {
-  transform: rotate(180deg);
-}
-
 .recommended-description {
   background: #ffedd5;
   padding: 20px;
@@ -324,15 +273,12 @@ section {
   line-height: 1.7;
 }
 
-/* PREFERITI */
-
 .favorite-small {
   background: white;
   padding: 18px 22px;
   border-radius: 18px;
   margin-bottom: 14px;
   border: 1px solid #f4c28d;
-  box-shadow: 0 6px 16px rgba(69, 26, 3, 0.09);
 }
 
 .favorite-small h3 {
@@ -340,65 +286,34 @@ section {
   color: #16813a;
 }
 
-.favorite-small p {
-  margin: 0;
-}
-
-/* MOBILE */
-
 @media (max-width: 800px) {
   body {
     background-attachment: scroll;
   }
 
   .hero {
-    min-height: 230px;
-    border-bottom-left-radius: 28px;
-    border-bottom-right-radius: 28px;
+    min-height: 240px;
+  }
+
+  .hero h1 {
+    font-size: 2.8rem;
   }
 
   .container {
     width: 94%;
-    margin-top: -90px;
+    margin-top: -65px;
   }
 
   section {
     padding: 20px;
-    border-radius: 22px;
-  }
-
-  .section-title h2,
-  .favorites-section h2 {
-    font-size: 1.55rem;
-  }
-
-  .quick-menu {
-    gap: 10px;
-  }
-
-  .quick-menu a {
-    padding: 11px 14px;
-    font-size: 0.92rem;
   }
 
   .filters {
     flex-direction: column;
   }
 
-  .filters select {
-    width: 100%;
-    min-width: 0;
-  }
-
   .book-item {
     padding: 22px;
-    border-radius: 22px;
-    border-left-width: 6px;
-  }
-
-  .fav-btn {
-    top: 16px;
-    left: 16px;
   }
 
   .book-card-layout {
@@ -408,8 +323,6 @@ section {
 
   .book-cover-box {
     order: -1;
-    justify-content: center;
-    padding-top: 8px;
   }
 
   .book-cover {
@@ -424,14 +337,9 @@ section {
 
   .book-details {
     grid-template-columns: 1fr;
-    gap: 5px;
   }
 
   .book-details .abstract {
     grid-column: 1;
-  }
-
-  .recommended-title {
-    font-size: 1.45rem;
   }
 }
