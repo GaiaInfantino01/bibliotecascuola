@@ -9,8 +9,11 @@ const availabilityFilter = document.getElementById("availability-filter");
 const sortFilter = document.getElementById("sort-filter");
 const counter = document.getElementById("counter");
 const clearFavoritesButton = document.getElementById("clear-favorites");
+const bookModal = document.getElementById("book-modal");
+const bookModalContent = document.getElementById("book-modal-content");
 
 let books = [];
+let filtersReady = false;
 
 function clean(value, fallback = "Non indicato") {
   const text = value ? String(value).trim() : "";
@@ -95,6 +98,3 @@ function getBookCover(book) {
   if (isbn !== "") {
     const cleanIsbn = isbn.replace(/[^0-9Xx]/g, "");
     return `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg?default=false`;
-  }
-
-  return "";
