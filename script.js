@@ -109,7 +109,7 @@ function createPlaceholderCover(book) {
 
   return `
     <div class="book-placeholder-cover" aria-label="Copertina generata per ${title}">
-      <span class="placeholder-kicker">BiblioLeo</span>
+      <span class="placeholder-kicker">BiblioFermi</span>
       <strong class="placeholder-title">${title}</strong>
       <span class="placeholder-author">${author}</span>
     </div>
